@@ -1,11 +1,19 @@
-// TẠM THỜI
 import { Link } from 'react-router';
-import { PagePlaceholder } from './PagePlaceholder';
+import { ProfileSkeleton, ProfileView, useProfile } from '../features/profiles';
+import { ErrorState, IconArrowLeft } from '../shared/ui';
+import styles from './ProfilePage.module.css';
 
 export function MyProfilePage() {
+  const { state, retry } = useProfile('me');
+
   return (
-    <PagePlaceholder title="Hồ sơ của tôi" note="Trang xem hồ sơ sẽ có ở bước 6.">
-      <Link to="/">Về trang chủ</Link>
-    </PagePlaceholder>
+    <main className={styles.page}>
+      <Link to="/" className={styles.back}>
+        <IconArrowLeft size={16} /> Trang chủ
+      </Link>
+      {state.status === 'loading' && <ProfileSkeleton />}
+      {state.status === 'error' && <ErrorState title="Không tải được hồ sơ" message={state.message} onRetry={retry} />}
+      {state.status === 'success' && <ProfileView profile={state.data} isOwner />}
+    </main>
   );
 }

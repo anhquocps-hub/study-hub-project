@@ -1,75 +1,57 @@
 /**
  * Mock Auth API, dùng khi VITE_USE_MOCK_API=true.
  * Có cùng tên hàm và kiểu trả về với auth-api.ts nên component không cần biết đang dùng bản nào.
- *
- * Tài khoản demo: demo@studyhub.vn / demo1234.
- * Tài khoản đăng ký mới chỉ sống trong bộ nhớ của tab: F5 thì mất tài khoản nhưng vẫn giữ phiên.
+ * Dữ liệu nằm ở src/test/mock-db.ts. Tài khoản demo: demo@studyhub.vn / demo1234.
  */
+import { MOCK_UNIVERSITIES, mockDb } from '../../../test/mock-db';
 import { ApiError } from '../../../services/http-client';
-import { userSchema, type LoginInput, type RegisterInput, type User } from '../model/auth-schemas';
-
-const SESSION_KEY = 'study-hub-mock-session';
-const DEMO_PASSWORD = 'demo1234';
-
-const demoUser: User = {
-  id: 'u-demo',
-  email: 'demo@studyhub.vn',
-  fullName: 'Sinh viên Demo',
-  role: 'USER',
-  profileCompleted: true,
-};
-
-// Mật khẩu mock chỉ giữ trong bộ nhớ, không ghi vào storage.
-const accounts = new Map<string, { user: User; password: string }>([
-  [demoUser.email, { user: demoUser, password: DEMO_PASSWORD }],
-]);
-
-const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
-
-function saveSession(user: User) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
-}
+import type { LoginInput, RegisterInput, User } from '../model/auth-schemas';
 
 export async function login(input: LoginInput): Promise<User> {
-  await delay();
-  const account = accounts.get(input.email);
-  if (!account || account.password !== input.password) {
+  await mockDb.delay(500);
+  const user = mockDb.findUserByEmail(input.email);
+  if (!user || !mockDb.checkPassword(user.id, input.password)) {
     throw new ApiError(401, 'Email hoặc mật khẩu không đúng.');
   }
-  saveSession(account.user);
-  return account.user;
+  mockDb.session.start(user.id);
+  return user;
 }
 
 export async function register(input: RegisterInput): Promise<User> {
-  await delay();
-  if (accounts.has(input.email)) {
+  await mockDb.delay(500);
+  if (mockDb.findUserByEmail(input.email)) {
     throw new ApiError(409, 'Email đã được sử dụng.', { email: 'Email này đã có tài khoản.' });
   }
-  const user: User = {
-    id: crypto.randomUUID(),
+  const university = MOCK_UNIVERSITIES.find((item) => item.id === input.universityId) ?? null;
+  const user = mockDb.createAccount({
     email: input.email,
-    fullName: input.fullName,
-    role: 'USER',
-    profileCompleted: false, // mới có trường, chưa có ngành
-  };
-  accounts.set(user.email, { user, password: input.password });
-  saveSession(user);
+    password: input.password,
+    profile: {
+      userId: crypto.randomUUID(),
+      fullName: input.fullName,
+      avatarUrl: null,
+      studentId: input.studentId === '' ? null : input.studentId,
+      university,
+      major: null, // chưa có ngành → profileCompleted = false → chuyển sang trang hoàn thiện hồ sơ
+      cohort: null,
+      bio: '',
+      skills: [],
+      interests: [],
+      links: { github: null, linkedin: null, portfolio: null },
+      projects: [],
+    },
+  });
+  mockDb.session.start(user.id);
   return user;
 }
 
 export async function logout(): Promise<void> {
-  await delay(200);
-  sessionStorage.removeItem(SESSION_KEY);
+  await mockDb.delay(200);
+  mockDb.session.end();
 }
 
 export async function getMe(): Promise<User | null> {
-  await delay(200);
-  const raw = sessionStorage.getItem(SESSION_KEY);
-  if (!raw) return null;
-  try {
-    const parsed = userSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : null;
-  } catch {
-    return null; // dữ liệu hỏng thì coi như chưa đăng nhập
-  }
+  await mockDb.delay(200);
+  const userId = mockDb.session.getUserId();
+  return userId ? mockDb.findUserById(userId) : null;
 }

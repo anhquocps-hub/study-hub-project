@@ -1,12 +1,39 @@
-// TẠM THỜI
-import { Link, useParams } from 'react-router';
-import { PagePlaceholder } from './PagePlaceholder';
+import { Link, Navigate, useParams } from 'react-router';
+import { useAuth } from '../features/auth';
+import { ProfileSkeleton, ProfileView, useProfile } from '../features/profiles';
+import { ButtonLink, ErrorState, IconArrowLeft, IconUserSearch } from '../shared/ui';
+import styles from './ProfilePage.module.css';
 
 export function UserProfilePage() {
-  const { userId } = useParams();
+  const { userId = '' } = useParams();
+  const { user } = useAuth();
+  const { state, retry } = useProfile(userId);
+
+  // Mở hồ sơ của chính mình qua /users/:id thì chuyển về /profile/me để có nút chỉnh sửa
+  if (user && userId === user.id) return <Navigate to="/profile/me" replace />;
+
   return (
-    <PagePlaceholder title="Hồ sơ người khác" note={`Đang xem người dùng có mã "${userId ?? ''}". Trang thật sẽ có ở bước 6.`}>
-      <Link to="/">Về trang chủ</Link>
-    </PagePlaceholder>
+    <main className={styles.page}>
+      <Link to="/" className={styles.back}>
+        <IconArrowLeft size={16} /> Trang chủ
+      </Link>
+      {state.status === 'loading' && <ProfileSkeleton />}
+      {state.status === 'error' &&
+        (state.httpStatus === 404 ? (
+          <ErrorState
+            icon={<IconUserSearch size={24} />}
+            title="Không tìm thấy người dùng"
+            message="Tài khoản này không tồn tại hoặc đường dẫn đã bị thay đổi."
+            action={
+              <ButtonLink to="/" variant="secondary">
+                Về trang chủ
+              </ButtonLink>
+            }
+          />
+        ) : (
+          <ErrorState title="Không tải được hồ sơ" message={state.message} onRetry={retry} />
+        ))}
+      {state.status === 'success' && <ProfileView profile={state.data} isOwner={false} />}
+    </main>
   );
 }
