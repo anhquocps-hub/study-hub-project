@@ -23,6 +23,7 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-danger-dim: rgba(239, 68, 68, 0.12);
+  --color-danger-text: #f87171; /* chữ báo lỗi: sáng hơn để đạt tương phản 4.5:1 trên nền tối */
   --color-info: #8b5cf6;
 
   /* Chữ */
@@ -42,6 +43,7 @@
   --space-12: 48px;
 
   /* Bo góc */
+  --radius-xs: 4px;    /* checkbox, vạch nhỏ */
   --radius-sm: 8px;    /* input, button, badge */
   --radius-md: 12px;   /* card */
   --radius-lg: 16px;   /* modal, popover */
