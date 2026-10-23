@@ -248,3 +248,19 @@ export function IconUserSearch(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconPlus(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </Icon>
+  );
+}
+
+export function IconX(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </Icon>
+  );
+}

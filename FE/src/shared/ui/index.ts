@@ -11,4 +11,5 @@ export * from './Icon';
 export { PasswordField } from './PasswordField';
 export { SelectField, type SelectOption } from './SelectField';
 export { Skeleton } from './Skeleton';
+export { TextArea } from './TextArea';
 export { TextField, type TextFieldProps } from './TextField';

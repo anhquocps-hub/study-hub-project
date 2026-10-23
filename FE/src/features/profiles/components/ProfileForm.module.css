@@ -1,0 +1,200 @@
+.form {
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* ---------- Tiêu đề và nút ---------- */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.headerText {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 560px;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  color: var(--text-secondary);
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.onboarding {
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-active);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-dim);
+  color: var(--text-primary);
+}
+
+/* ---------- Độ hoàn thiện ---------- */
+.completion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container);
+}
+
+.ring {
+  flex: none;
+  transform: rotate(-90deg);
+}
+
+.ringTrack,
+.ringValue {
+  fill: none;
+  stroke-width: 4;
+}
+
+.ringTrack {
+  stroke: var(--color-surface-bright);
+}
+
+.ringValue {
+  stroke: var(--color-success);
+  stroke-linecap: round;
+  transition: stroke-dasharray 250ms ease-out;
+}
+
+.completionTitle {
+  font-weight: 500;
+}
+
+.completionTitle strong {
+  color: var(--color-success);
+}
+
+.completionHint {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+
+/* ---------- Bố cục hai cột ---------- */
+.columns,
+.column {
+  display: grid;
+  align-content: start;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+.fields {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.counter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+
+.counterOver {
+  color: var(--color-danger-text);
+}
+
+.retry {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.retry:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Thanh nhắc lưu ---------- */
+.unsavedBar {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-active);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-high);
+  box-shadow: var(--shadow-modal);
+  animation: slide-up 200ms ease-out;
+}
+
+.unsavedText {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+}
+
+.unsavedText svg {
+  flex: none;
+  color: var(--color-warning);
+}
+
+.unsavedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unsavedBar {
+    animation: none;
+  }
+
+  .ringValue {
+    transition: none;
+  }
+}

@@ -160,3 +160,15 @@
     transition: none;
   }
 }
+
+.textarea {
+  min-height: 120px;
+  padding: var(--space-3);
+  resize: vertical;
+}
+
+.input[readonly] {
+  background: var(--color-surface-container-high);
+  color: var(--text-secondary);
+  cursor: default;
+}
