@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getHealth } from './services/api';
+import { getHealth } from '../services/api';
 
 export default function App() {
   const [message, setMessage] = useState('Đang kiểm tra kết nối...');
