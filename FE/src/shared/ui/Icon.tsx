@@ -152,3 +152,99 @@ export function IconAlertCircle(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconArrowLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19 12H5M11 18l-6-6 6-6" />
+    </Icon>
+  );
+}
+
+export function IconPencil(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+      <path d="m13.5 6.5 4 4" />
+    </Icon>
+  );
+}
+
+export function IconExternalLink(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M14 4h6v6M20 4l-9 9" />
+      <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+    </Icon>
+  );
+}
+
+export function IconCode(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m8 7-5 5 5 5M16 7l5 5-5 5" />
+    </Icon>
+  );
+}
+
+export function IconBriefcase(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" />
+    </Icon>
+  );
+}
+
+export function IconGlobe(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </Icon>
+  );
+}
+
+export function IconLink(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+      <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+    </Icon>
+  );
+}
+
+export function IconZap(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M13 3 4 14h7l-1 7 9-11h-7z" />
+    </Icon>
+  );
+}
+
+export function IconFolder(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </Icon>
+  );
+}
+
+export function IconHeart(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 20s-7-4.4-9-9a4.8 4.8 0 0 1 9-3 4.8 4.8 0 0 1 9 3c-2 4.6-9 9-9 9z" />
+    </Icon>
+  );
+}
+
+export function IconUserSearch(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="10" cy="8" r="4" />
+      <path d="M3 20c.8-3.5 3.6-5 7-5" />
+      <circle cx="17" cy="17" r="3" />
+      <path d="m21 21-1.8-1.8" />
+    </Icon>
+  );
+}

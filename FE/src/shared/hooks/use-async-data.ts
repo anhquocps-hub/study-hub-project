@@ -3,7 +3,8 @@ import { ApiError, GENERIC_ERROR } from '../../services/http-client';
 
 export type AsyncState<T> =
   | { status: 'loading' }
-  | { status: 'error'; message: string }
+  /** httpStatus: mã lỗi HTTP (ví dụ 404) để giao diện báo đúng loại lỗi; null nếu không phải lỗi từ BE. */
+  | { status: 'error'; message: string; httpStatus: number | null }
   | { status: 'success'; data: T };
 
 /**
@@ -28,7 +29,11 @@ export function useAsyncData<T>(key: string, load: (signal: AbortSignal) => Prom
       .then((data) => setState({ status: 'success', data }))
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setState({ status: 'error', message: error instanceof ApiError ? error.message : GENERIC_ERROR });
+        setState(
+          error instanceof ApiError
+            ? { status: 'error', message: error.message, httpStatus: error.status || null }
+            : { status: 'error', message: GENERIC_ERROR, httpStatus: null },
+        );
       });
     return () => controller.abort();
   }, [key, reloadCount]);
