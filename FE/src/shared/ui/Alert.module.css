@@ -1,0 +1,15 @@
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-dim);
+  color: var(--text-primary);
+}
+
+.alert svg {
+  flex: none;
+  color: var(--color-danger-text);
+}

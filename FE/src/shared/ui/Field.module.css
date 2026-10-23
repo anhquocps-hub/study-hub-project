@@ -1,0 +1,174 @@
+.field {
+  display: grid;
+  align-content: start; /* giữ ô thẳng hàng khi ô bên cạnh trong cùng hàng có dòng lỗi */
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.labelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+}
+
+.label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.required {
+  margin-left: var(--space-1);
+  color: var(--color-primary);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-lowest);
+  color: var(--text-primary);
+  /* 16px để trình duyệt điện thoại không tự phóng to khi chạm vào ô nhập */
+  font-size: 16px;
+  line-height: 24px;
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--color-surface-bright);
+}
+
+.input:focus-visible {
+  outline: none;
+  border: var(--border-active);
+  box-shadow: 0 0 0 3px var(--color-primary-dim);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* chừa chỗ cho icon 20px ở đầu ô */
+.hasLeading {
+  padding-left: calc(var(--space-3) + 20px + var(--space-2));
+}
+
+.hasTrailing,
+.select {
+  padding-right: var(--space-12);
+}
+
+.select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:has(option[value='']:checked) {
+  color: var(--text-muted); /* đang hiện dòng "Chọn …" */
+}
+
+.select option {
+  color: var(--text-primary);
+  background: var(--color-surface-container);
+}
+
+.leading {
+  position: absolute;
+  left: var(--space-3);
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.control:focus-within .leading {
+  color: var(--color-primary);
+}
+
+.trailing {
+  position: absolute;
+  right: var(--space-1);
+  display: flex;
+}
+
+.chevron {
+  right: var(--space-3);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.iconButton {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-container-high);
+  color: var(--text-primary);
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-danger-text);
+}
+
+.error svg {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input {
+    transition: none;
+  }
+}
+
+.textarea {
+  min-height: 120px;
+  padding: var(--space-3);
+  resize: vertical;
+}
+
+.input[readonly] {
+  background: var(--color-surface-container-high);
+  color: var(--text-secondary);
+  cursor: default;
+}
