@@ -1,0 +1,57 @@
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .rowUniversity {
+    grid-template-columns: 7fr 5fr;
+  }
+
+  .rowPassword {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.submit {
+  margin-top: var(--space-2);
+}
+
+/* Ghi chú nhỏ bên phải nhãn, ví dụ "Khuyên dùng email .edu.vn" */
+.labelNote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--color-success);
+}
+
+.labelNote::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+.retry {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.retry:hover {
+  text-decoration: underline;
+}
