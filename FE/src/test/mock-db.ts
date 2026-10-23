@@ -6,7 +6,7 @@
  *   được sau khi F5 và đăng xuất. Tài khoản mẫu luôn dùng mật khẩu demo1234.
  * - Muốn về dữ liệu ban đầu: đóng tab hoặc xóa Session Storage trong DevTools.
  */
-import type { University } from '../features/academic';
+import type { Major, University } from '../features/academic';
 import type { User } from '../features/auth';
 import type { Profile } from '../features/profiles';
 
@@ -21,6 +21,27 @@ export const MOCK_UNIVERSITIES: University[] = [
   { id: 'hcmus', name: 'ĐH Khoa học Tự nhiên – ĐHQG-HCM (HCMUS)' },
   { id: 'ueh', name: 'ĐH Kinh tế TP.HCM (UEH)' },
 ];
+
+const IT_MAJORS: Major[] = [
+  { id: 'se', name: 'Kỹ thuật phần mềm' },
+  { id: 'cs', name: 'Khoa học máy tính' },
+  { id: 'is', name: 'Hệ thống thông tin' },
+  { id: 'ai', name: 'Trí tuệ nhân tạo' },
+  { id: 'ns', name: 'An toàn thông tin' },
+];
+
+/** Ngành theo từng trường (mã trường → danh sách ngành). */
+export const MOCK_MAJORS: Record<string, Major[]> = {
+  hcmute: IT_MAJORS,
+  uit: IT_MAJORS,
+  hcmut: IT_MAJORS,
+  hcmus: IT_MAJORS,
+  ueh: [
+    { id: 'ba', name: 'Quản trị kinh doanh' },
+    { id: 'mkt', name: 'Marketing' },
+    { id: 'fin', name: 'Tài chính – Ngân hàng' },
+  ],
+};
 
 interface StoredAccount {
   email: string;

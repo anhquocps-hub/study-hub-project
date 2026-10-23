@@ -1,3 +1,4 @@
 // Public API của feature academic (trường, ngành, môn)
+export { useMajors } from './hooks/useMajors';
 export { useUniversities } from './hooks/useUniversities';
-export type { University } from './model/academic-schemas';
+export type { Major, University } from './model/academic-schemas';

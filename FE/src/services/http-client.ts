@@ -1,5 +1,5 @@
 /**
- * HTTP client dùng chung cho mọi request tới BE (design.md mục 13).
+ * HTTP client dùng chung cho mọi request tới BE.
  * - Gửi kèm cookie phiên đăng nhập (credentials: 'include').
  * - Quá 15 giây không có phản hồi thì tự hủy request.
  * - Mọi lỗi được chuyển thành ApiError để giao diện hiển thị thống nhất.

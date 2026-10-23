@@ -1,5 +1,5 @@
 /*
- * Design tokens của Study Hub — lấy từ FE/design.md (mục 3–5).
+ * Design tokens của Study Hub — lấy từ FE/design.md.
  * Component chỉ dùng các biến này qua var(...), không hard-code giá trị.
  */
 :root {
