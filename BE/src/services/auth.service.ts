@@ -293,9 +293,10 @@ export class AuthService {
     });
 
     // Trong môi trường dev, có thể trả về resetToken để tiện test
+    const isProduction = process.env.NODE_ENV === 'production';
     return {
-      message: 'Mã đặt lại mật khẩu đã được tạo.',
-      resetToken,
+      message: 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.',
+      ...(isProduction ? {} : { resetToken }),
     };
   }
 

@@ -3,18 +3,20 @@ import { AuthService } from '../services/auth.service.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const sameSitePolicy = (process.env.COOKIE_SAME_SITE as CookieOptions['sameSite']) ?? (isProduction ? 'none' : 'lax');
+const isSecure = isProduction || sameSitePolicy === 'none';
 
 export const ACCESS_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? 'strict' : 'lax',
+  secure: isSecure,
+  sameSite: sameSitePolicy,
   maxAge: 15 * 60 * 1000, // 15 phút
 };
 
 export const REFRESH_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? 'strict' : 'lax',
+  secure: isSecure,
+  sameSite: sameSitePolicy,
   path: '/',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
 };
