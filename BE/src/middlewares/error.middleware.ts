@@ -48,6 +48,15 @@ export function errorHandler(
       return;
     }
 
+    // P2003: Foreign key constraint failed
+    if (err.code === 'P2003') {
+      res.status(400).json({
+        message: 'Dữ liệu liên kết không hợp lệ (mã trường hoặc mã ngành không tồn tại).',
+        fieldErrors: {},
+      });
+      return;
+    }
+
     // P2025: Record to update/delete not found
     if (err.code === 'P2025') {
       res.status(404).json({
