@@ -1,0 +1,82 @@
+.wrapper {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.label {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.label strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Ẩn thẻ checkbox gốc nhưng vẫn để nó nhận focus và click */
+.input {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.box {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-lowest);
+  color: transparent;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.input:checked + .box {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.input:focus-visible + .box {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.input[aria-invalid='true'] + .box {
+  border-color: var(--color-danger);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-danger-text);
+}
+
+.error svg {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box {
+    transition: none;
+  }
+}

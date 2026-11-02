@@ -1,0 +1,10 @@
+/* Ghi chú chỉ hiện khi VITE_USE_MOCK_API=true, giúp người test biết tài khoản demo */
+.mockNote {
+  padding: var(--space-2) var(--space-3);
+  border: 1px dashed var(--color-surface-bright);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}

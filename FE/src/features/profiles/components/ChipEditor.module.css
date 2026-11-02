@@ -1,0 +1,78 @@
+.editor {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Ô nhập chiếm cả hàng; chọn trình độ và nút Thêm nằm ở hàng dưới */
+.addRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.addRow > :first-child {
+  grid-column: 1 / -1;
+}
+
+.addRowSingle {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.addRowSingle > :first-child {
+  grid-column: auto;
+}
+
+/* Thẳng hàng với ô nhập: bỏ qua chiều cao dòng nhãn (16px) và khoảng cách bên dưới nó */
+.addButton {
+  min-height: 44px;
+  margin-top: calc(16px + var(--space-2));
+}
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-lowest);
+  color: var(--text-primary);
+}
+
+.chipRemove {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.chipRemove:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-danger-text);
+}
+
+.emptyText {
+  color: var(--text-secondary);
+}
+
+.error {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-danger-text);
+}
