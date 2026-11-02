@@ -1,0 +1,250 @@
+/* Bảng tin (padding ngang 24px, khoảng cách giữa khối 24px). */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 24px 64px;
+}
+
+.glow {
+  height: 2px;
+  margin-bottom: 0;
+  background: linear-gradient(90deg, rgba(76, 215, 246, 0), var(--ui-accent) 50%, rgba(76, 215, 246, 0));
+  opacity: 0.4;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.launcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 24px 40px;
+  overflow: hidden;
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.launcherGlow {
+  position: absolute;
+  top: -64px;
+  right: -64px;
+  width: 192px;
+  height: 192px;
+  border-radius: 12px;
+  background: rgba(76, 215, 246, 0.05);
+  filter: blur(32px);
+  pointer-events: none;
+}
+
+.avatarWrap {
+  position: relative;
+  flex: none;
+}
+
+.avatarWrap .avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+
+.online {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  background: var(--ui-green);
+  box-shadow: 0 0 0 2px var(--ui-card);
+}
+
+.launcherText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.launcherTitle {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.4px;
+}
+
+.launcherSub {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ui-text-3);
+}
+
+.primaryBtn {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-accent);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.24px;
+  color: var(--ui-on-accent);
+  cursor: pointer;
+}
+
+.primaryBtn:hover {
+  filter: brightness(1.08);
+}
+
+.subjectSearch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-card-low);
+}
+
+.subjectInput {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.subjectIcon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.subjectInput input {
+  width: 100%;
+  padding: 11px 17px 11px 41px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-bg-lowest);
+  font-size: 13px;
+  color: var(--ui-text);
+}
+
+.subjectInput input::placeholder {
+  color: var(--ui-text-3);
+}
+
+.searchBtn {
+  padding: 8px 16px;
+  font-weight: 600;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  padding-bottom: 4px;
+}
+
+.filterInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ui-text-2);
+}
+
+.filterInfo button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--ui-accent);
+  cursor: pointer;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-bg-lowest);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  color: var(--ui-text-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-card);
+}
+
+.empty {
+  padding: 48px 0;
+  font-size: 13px;
+  color: var(--ui-text-3);
+  text-align: center;
+}
+
+.primaryBtn:focus-visible,
+.subjectInput input:focus-visible,
+.filterInfo button:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 16px;
+    padding: 0 12px 48px;
+  }
+
+  .launcher {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .launcher .primaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .searchBtn {
+    padding: 8px 10px;
+    font-size: 0; /* chỉ còn icon khi màn hẹp; tên nút nằm ở aria-label */
+  }
+}

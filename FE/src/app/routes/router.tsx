@@ -1,7 +1,9 @@
 import { createBrowserRouter } from 'react-router';
+import { AppLayout } from '../../components/layout/AppLayout';
 import { GuestOnly, RequireAuth } from '../../features/auth';
+import { ChatRoomPage } from '../../pages/ChatRoomPage';
 import { EditProfilePage } from '../../pages/EditProfilePage';
-import { HomePage } from '../../pages/HomePage';
+import { FeedPage } from '../../pages/FeedPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
@@ -19,10 +21,17 @@ export const router = createBrowserRouter([
   },
   {
     // Trang cần đăng nhập: khách bị RequireAuth chuyển về /login.
-    // Khi xong App Layout, bọc nhóm này bằng layout có Header và Sidebar.
     element: <RequireAuth />,
     children: [
-      { path: '/', element: <HomePage /> }, // Feed của chu kỳ 2 sẽ thay vào
+      {
+        // Khung có Header + thanh điều hướng trái (Figma).
+        element: <AppLayout />,
+        children: [
+          { path: '/', element: <FeedPage /> },
+          { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
+          { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
+        ],
+      },
       { path: '/profile/me', element: <MyProfilePage /> },
       { path: '/profile/edit', element: <EditProfilePage /> },
       { path: '/users/:userId', element: <UserProfilePage /> },

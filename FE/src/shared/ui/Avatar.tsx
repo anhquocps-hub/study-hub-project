@@ -4,6 +4,8 @@ interface AvatarProps {
   name: string;
   src?: string | null;
   size?: 'md' | 'lg';
+  /** Ghi đè kích thước/bo góc khi cần khác hai cỡ chuẩn (ví dụ avatar trong chat). */
+  className?: string;
 }
 
 /** Lấy chữ cái đầu của tên đầu và tên cuối: "Nguyễn Minh Tuấn" → "NT". */
@@ -16,8 +18,8 @@ function getInitials(name: string): string {
 }
 
 /** Ảnh đại diện; chưa có ảnh thì hiện chữ cái đầu của tên. */
-export function Avatar({ name, src, size = 'md' }: AvatarProps) {
-  const className = `${styles.avatar} ${styles[size]}`;
+export function Avatar({ name, src, size = 'md', className: extra }: AvatarProps) {
+  const className = [styles.avatar, styles[size], extra].filter(Boolean).join(' ');
   if (src) return <img className={className} src={src} alt={`Ảnh đại diện của ${name}`} />;
   return (
     <span className={className} role="img" aria-label={`Ảnh đại diện của ${name}`}>
