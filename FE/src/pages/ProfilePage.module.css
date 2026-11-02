@@ -1,0 +1,31 @@
+.page {
+  width: 100%;
+  max-width: 1004px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-12);
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* TẠM THỜI: liên kết về trang chủ */
+.back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text-primary);
+}
+
+.saved {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-dim);
+  color: var(--text-primary);
+}
