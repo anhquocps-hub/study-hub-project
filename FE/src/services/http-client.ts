@@ -71,3 +71,8 @@ export async function request(path: string, init: RequestInit = {}): Promise<unk
   }
   return body;
 }
+
+/** Thông báo lỗi an toàn để hiện cho người dùng: chỉ dùng message của ApiError, còn lại là lỗi chung. */
+export function getErrorMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : GENERIC_ERROR;
+}
