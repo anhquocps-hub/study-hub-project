@@ -13,7 +13,7 @@ export function LoginPage() {
       description="Dùng email trường hoặc email cá nhân bạn đã đăng ký."
       footer={
         <>
-          <span>Chưa có tài khoản Study Hub?</span>
+          <span>Chưa có tài khoản UniSpace?</span>
           <Link to="/register">
             Đăng ký ngay <IconArrowRight size={16} />
           </Link>
@@ -21,7 +21,7 @@ export function LoginPage() {
       }
     >
       {isMockApi && (
-        <p className={styles.mockNote}>Chế độ mock: đăng nhập bằng demo@studyhub.vn / demo1234</p>
+        <p className={styles.mockNote}>Chế độ mock: đăng nhập bằng demo@unispace.vn / demo1234</p>
       )}
       <LoginForm />
     </AuthLayout>

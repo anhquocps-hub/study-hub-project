@@ -162,7 +162,7 @@ export function RegisterForm() {
       <PasswordStrengthMeter password={password} />
 
       <Checkbox error={errors.acceptTerms?.message} {...register('acceptTerms')}>
-        Tôi đồng ý với <strong>Điều khoản dịch vụ</strong> và <strong>Tiêu chuẩn cộng đồng</strong> của Study Hub.
+        Tôi đồng ý với <strong>Điều khoản dịch vụ</strong> và <strong>Tiêu chuẩn cộng đồng</strong> của UniSpace.
       </Checkbox>
 
       <Button
