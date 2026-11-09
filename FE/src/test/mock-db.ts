@@ -10,8 +10,8 @@ import type { Major, University } from '../features/academic';
 import type { User } from '../features/auth';
 import type { Profile } from '../features/profiles';
 
-const DB_KEY = 'study-hub-mock-db';
-const SESSION_KEY = 'study-hub-mock-session';
+const DB_KEY = 'unispace-mock-db';
+const SESSION_KEY = 'unispace-mock-session';
 export const MOCK_DEMO_PASSWORD = 'demo1234';
 
 export const MOCK_UNIVERSITIES: University[] = [
@@ -51,7 +51,7 @@ interface StoredAccount {
 
 const SEED: StoredAccount[] = [
   {
-    email: 'demo@studyhub.vn',
+    email: 'demo@unispace.vn',
     role: 'USER',
     profile: {
       userId: 'u-demo',
@@ -69,12 +69,12 @@ const SEED: StoredAccount[] = [
         { name: 'Docker', level: 'BEGINNER' },
       ],
       interests: ['Web', 'UI/UX', 'EdTech'],
-      links: { github: 'https://github.com/studyhub-demo', linkedin: null, portfolio: 'https://studyhub-demo.dev' },
+      links: { github: 'https://github.com/unispace-demo', linkedin: null, portfolio: 'https://unispace-demo.dev' },
       projects: [{ id: 'p-expense', name: 'Expense Tracker – Web quản lý chi tiêu sinh viên', role: 'Frontend Developer' }],
     },
   },
   {
-    email: 'yennhi@studyhub.vn',
+    email: 'yennhi@unispace.vn',
     role: 'USER',
     profile: {
       userId: 'u-khac',

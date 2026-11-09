@@ -12,28 +12,24 @@ import iconShare from '../../../assets/figma/post-share.svg';
 import iconStack from '../../../assets/figma/post-stack.svg';
 import iconSubject from '../../../assets/figma/post-subject.svg';
 import iconTimeline from '../../../assets/figma/post-timeline.svg';
-import { ApiError, GENERIC_ERROR } from '../../../services/http-client';
-import { Avatar } from '../../../shared/ui';
+import { getErrorMessage } from '../../../services/http-client';
+import { Avatar, ConfirmDialog } from '../../../shared/ui';
 import type { Post } from '../model/post-schemas';
+import { formatFullDate, timeAgo } from '../utils/time-ago';
+import type { CommentViewer } from './CommentItem';
+import { CommentSection } from './CommentSection';
 import styles from './PostCard.module.css';
-
-const relativeTime = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
-
-/** "2 giờ trước", "3 ngày trước"... */
-export function timeAgo(iso: string) {
-  const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
-  if (minutes > -1) return 'Vừa xong';
-  if (minutes > -60) return relativeTime.format(minutes, 'minute');
-  if (minutes > -60 * 24) return relativeTime.format(Math.round(minutes / 60), 'hour');
-  return relativeTime.format(Math.round(minutes / 1440), 'day');
-}
 
 interface PostCardProps {
   post: Post;
-  isMine: boolean;
+  /** Người đang xem; null = khách. Dùng để biết bài/bình luận nào là của mình. */
+  currentUser: CommentViewer | null;
   onEdit: (post: Post) => void;
   onDelete: (post: Post) => Promise<void>;
   onToggleLike: (post: Post) => Promise<void>;
+  onCommentCountChange: (post: Post, delta: number) => void;
+  /** Trang chi tiết: mở sẵn phần bình luận. */
+  defaultCommentsOpen?: boolean;
 }
 
 const SPEC_ITEMS = [
@@ -43,9 +39,21 @@ const SPEC_ITEMS = [
   { key: 'timeline', label: 'THỜI LƯỢNG & TIMELINE', icon: iconTimeline },
 ] as const;
 
-export function PostCard({ post, isMine, onEdit, onDelete, onToggleLike }: PostCardProps) {
+export function PostCard({
+  post,
+  currentUser,
+  onEdit,
+  onDelete,
+  onToggleLike,
+  onCommentCountChange,
+  defaultCommentsOpen = false,
+}: PostCardProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(defaultCommentsOpen);
+  const [confirmState, setConfirmState] = useState<{ busy: boolean; error: string | null } | null>(null);
+  const isMine = currentUser?.id === post.author.id;
+  const commentsId = `post-${post.id}-comments`;
   const { author, recruitment, studyGroup, seeking, course } = post;
   const isStudy = post.type === 'FIND_STUDY_GROUP';
   const courseLine = recruitment?.courseLabel ?? (course && `${course.subject} • ${course.classCode}`);
@@ -57,14 +65,19 @@ export function PostCard({ post, isMine, onEdit, onDelete, onToggleLike }: PostC
     try {
       await action();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : GENERIC_ERROR);
+      setError(getErrorMessage(err));
     } finally {
       setBusy(false);
     }
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Xóa bài viết này? Thao tác không thể hoàn tác.')) void run(() => onDelete(post));
+  const handleDelete = async () => {
+    setConfirmState({ busy: true, error: null });
+    try {
+      await onDelete(post); // thành công: thẻ bài bị gỡ (feed) hoặc trang chuyển về feed (chi tiết)
+    } catch (err) {
+      setConfirmState({ busy: false, error: getErrorMessage(err) });
+    }
   };
 
   return (
@@ -87,7 +100,10 @@ export function PostCard({ post, isMine, onEdit, onDelete, onToggleLike }: PostC
               )}
               <span className={styles.dot}>•</span>
               <span className={styles.meta}>
-                {[author.cohort, timeAgo(post.createdAt)].filter(Boolean).join(' • ')}
+                {author.cohort && `${author.cohort} • `}
+                <Link to={`/posts/${post.id}`} className={styles.timeLink} title={formatFullDate(post.createdAt)}>
+                  <time dateTime={post.createdAt}>{timeAgo(post.createdAt)}</time>
+                </Link>
                 {post.updatedAt !== post.createdAt && ' (đã sửa)'}
               </span>
             </p>
@@ -104,7 +120,7 @@ export function PostCard({ post, isMine, onEdit, onDelete, onToggleLike }: PostC
             <button type="button" className={styles.textBtn} onClick={() => onEdit(post)} disabled={busy}>
               Sửa
             </button>
-            <button type="button" className={`${styles.textBtn} ${styles.danger}`} onClick={handleDelete} disabled={busy}>
+            <button type="button" className={`${styles.textBtn} ${styles.danger}`} onClick={() => setConfirmState({ busy: false, error: null })} disabled={busy}>
               Xóa
             </button>
           </div>
@@ -226,18 +242,47 @@ export function PostCard({ post, isMine, onEdit, onDelete, onToggleLike }: PostC
           <img src={iconLike} alt="" />
           {post.likeCount}
         </button>
-        <button type="button" className={styles.action} aria-label={`Bình luận (${post.commentCount})`}>
+        <button
+          type="button"
+          className={isCommentsOpen ? `${styles.action} ${styles.liked}` : styles.action}
+          aria-label={`Bình luận (${post.commentCount})`}
+          aria-expanded={isCommentsOpen}
+          aria-controls={isCommentsOpen ? commentsId : undefined}
+          onClick={() => setIsCommentsOpen((open) => !open)}
+        >
           <img src={iconComment} alt="" />
           {post.commentCount}
         </button>
-        <button type="button" className={styles.action}>
+        <button type="button" className={styles.action} disabled title="Sắp có">
           <img src={iconShare} alt="" />
           Chia sẻ
         </button>
-        <button type="button" className={styles.action} aria-label="Lưu bài viết">
+        <button type="button" className={styles.action} aria-label="Lưu bài viết" disabled title="Sắp có">
           <img src={iconBookmark} alt="" />
         </button>
       </footer>
+
+      {isCommentsOpen && (
+        <div id={commentsId}>
+          <CommentSection
+            postId={post.id}
+            currentUser={currentUser}
+            onCountChange={(delta) => onCommentCountChange(post, delta)}
+          />
+        </div>
+      )}
+
+      {confirmState && (
+        <ConfirmDialog
+          title="Xóa bài viết?"
+          message="Bài viết và toàn bộ bình luận sẽ bị xóa vĩnh viễn. Thao tác không thể hoàn tác."
+          confirmLabel="Xóa bài viết"
+          isBusy={confirmState.busy}
+          error={confirmState.error}
+          onConfirm={() => void handleDelete()}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </article>
   );
 }

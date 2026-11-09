@@ -199,6 +199,7 @@
 }
 
 .list {
+  outline: none;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -247,4 +248,20 @@
     padding: 8px 10px;
     font-size: 0; /* chỉ còn icon khi màn hẹp; tên nút nằm ở aria-label */
   }
+}
+
+.loadMore {
+  align-self: center;
+}
+
+.loadMoreError {
+  font-size: 12px;
+  color: var(--ui-red);
+  text-align: center;
+}
+
+.endOfFeed {
+  font-size: 12px;
+  color: var(--ui-text-3);
+  text-align: center;
 }

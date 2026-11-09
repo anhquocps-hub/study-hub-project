@@ -7,11 +7,11 @@ export function RegisterPage() {
     <AuthLayout
       width="wide"
       eyebrow="Tài khoản sinh viên"
-      title="Tạo tài khoản Study Hub mới"
+      title="Tạo tài khoản UniSpace mới"
       description="Gia nhập mạng lưới học thuật và kết nối đồng đội dự án sinh viên liên trường."
       footer={
         <>
-          <span>Đã có tài khoản Study Hub?</span>
+          <span>Đã có tài khoản UniSpace?</span>
           <Link to="/login">
             Đăng nhập ngay <IconLogIn size={16} />
           </Link>

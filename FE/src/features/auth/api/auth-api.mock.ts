@@ -1,7 +1,7 @@
 /**
  * Mock Auth API, dùng khi VITE_USE_MOCK_API=true.
  * Có cùng tên hàm và kiểu trả về với auth-api.ts nên component không cần biết đang dùng bản nào.
- * Dữ liệu nằm ở src/test/mock-db.ts. Tài khoản demo: demo@studyhub.vn / demo1234.
+ * Dữ liệu nằm ở src/test/mock-db.ts. Tài khoản demo: demo@unispace.vn / demo1234.
  */
 import { MOCK_UNIVERSITIES, mockDb } from '../../../test/mock-db';
 import { ApiError } from '../../../services/http-client';
