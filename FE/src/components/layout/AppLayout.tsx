@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import iconBell from '../../assets/figma/header-bell.svg';
 import iconMessage from '../../assets/figma/header-message.svg';
@@ -17,6 +17,7 @@ import iconSettings from '../../assets/figma/nav-settings.svg';
 import iconStudy from '../../assets/figma/nav-study.svg';
 import { useAuth } from '../../features/auth';
 import { useMyRooms, type RoomSummary } from '../../features/chat';
+import { useMyCommunities, type Community } from '../../features/communities';
 import { useProfile } from '../../features/profiles';
 import { Avatar } from '../../shared/ui';
 import styles from './AppLayout.module.css';
@@ -37,13 +38,24 @@ function RoomLink({ room }: { room: RoomSummary }) {
   );
 }
 
+const COMMUNITY_TAG_TONE = { UNIVERSITY: 'muted', SUBJECT: 'purple', INTEREST: 'green' } as const;
+
+/** Cộng đồng ở thanh trái: nhãn là mã môn, tên trường hoặc "Sở thích"; màu theo loại cộng đồng. */
+function toRoomSummary(community: Community): RoomSummary {
+  const text = community.subjectCode ?? community.university?.shortName ?? 'Sở thích';
+  return { id: community.id, kind: 'COMMUNITY', name: community.name, badge: { text, tone: COMMUNITY_TAG_TONE[community.type] } };
+}
+
 function Sidebar() {
   const navigate = useNavigate();
   const { state } = useMyRooms();
+  const { state: myCommunities } = useMyCommunities();
   const [communitiesOpen, setCommunitiesOpen] = useState(true);
-  const rooms = state.status === 'success' ? state.data : [];
-  const communities = rooms.filter((room) => room.kind === 'COMMUNITY');
-  const spaces = rooms.filter((room) => room.kind === 'SPACE');
+  // Giữ danh sách cũ trong lúc tải lại sau khi tham gia/rời, để thanh trái không bị nháy trống
+  const lastCommunities = useRef<RoomSummary[]>([]);
+  if (myCommunities.status === 'success') lastCommunities.current = myCommunities.data.map(toRoomSummary);
+  const communities = lastCommunities.current;
+  const spaces = state.status === 'success' ? state.data.filter((room) => room.kind === 'SPACE') : [];
 
   return (
     <aside className={styles.aside} aria-label="Điều hướng chính">
@@ -81,6 +93,9 @@ function Sidebar() {
             {communities.map((room) => (
               <RoomLink key={room.id} room={room} />
             ))}
+            <NavLink to="/communities" end className={styles.allCommunities}>
+              Xem tất cả cộng đồng
+            </NavLink>
             <span className={styles.createCommunity} title="Sắp có">
               <img src={iconPlusCircle} alt="" />
               Tạo cộng đồng

@@ -472,3 +472,30 @@
     padding: 0;
   }
 }
+
+.allCommunities {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: var(--ui-radius-xs);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--ui-text-2);
+  text-decoration: none;
+}
+
+.allCommunities:hover {
+  background: var(--ui-card);
+  color: var(--ui-text);
+}
+
+.allCommunities:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+
+.allCommunities[aria-current='page'] {
+  background: #1c2b3c;
+  color: var(--ui-accent);
+}

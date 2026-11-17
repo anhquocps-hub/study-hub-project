@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '../../components/layout/AppLayout';
 import { GuestOnly, RequireAuth } from '../../features/auth';
 import { ChatRoomPage } from '../../pages/ChatRoomPage';
+import { CommunitiesPage } from '../../pages/CommunitiesPage';
+import { CommunityPage } from '../../pages/CommunityPage';
 import { EditProfilePage } from '../../pages/EditProfilePage';
 import { FeedPage } from '../../pages/FeedPage';
 import { LoginPage } from '../../pages/LoginPage';
@@ -29,7 +31,8 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <FeedPage /> },
           { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
-          { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
+          { path: '/communities', element: <CommunitiesPage /> },
+          { path: '/communities/:roomId', element: <CommunityPage /> },
         ],
       },
       { path: '/profile/me', element: <MyProfilePage /> },
