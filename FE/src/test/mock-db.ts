@@ -6,7 +6,7 @@
  *   được sau khi F5 và đăng xuất. Tài khoản mẫu luôn dùng mật khẩu demo1234.
  * - Muốn về dữ liệu ban đầu: đóng tab hoặc xóa Session Storage trong DevTools.
  */
-import type { Major, University } from '../features/academic';
+import type { Major, Subject, University } from '../features/academic';
 import type { User } from '../features/auth';
 import type { Profile } from '../features/profiles';
 
@@ -41,6 +41,38 @@ export const MOCK_MAJORS: Record<string, Major[]> = {
     { id: 'mkt', name: 'Marketing' },
     { id: 'fin', name: 'Tài chính – Ngân hàng' },
   ],
+};
+
+const IT_SUBJECTS: Subject[] = [
+  { id: 'it204', code: 'IT204', name: 'Cơ sở dữ liệu', credits: 3 },
+  { id: 'se302', code: 'SE302', name: 'Lập trình Web nâng cao', credits: 3 },
+  { id: 'dsa201', code: 'DSA201', name: 'Cấu trúc dữ liệu & Giải thuật', credits: 4 },
+  { id: 'se402', code: 'SE402', name: 'Công nghệ phần mềm nâng cao', credits: 3 },
+  { id: 'os203', code: 'OS203', name: 'Hệ điều hành', credits: 3 },
+  { id: 'nt106', code: 'NT106', name: 'Mạng máy tính', credits: 3 },
+  { id: 'oop101', code: 'OOP101', name: 'Lập trình hướng đối tượng', credits: 4 },
+  { id: 'ma201', code: 'MA201', name: 'Xác suất thống kê', credits: 3 },
+  { id: 'ai301', code: 'AI301', name: 'Trí tuệ nhân tạo', credits: 3 },
+  { id: 'se347', code: 'SE347', name: 'Công nghệ Web và ứng dụng', credits: 3 },
+];
+
+const BUSINESS_SUBJECTS: Subject[] = [
+  { id: 'mkt201', code: 'MKT201', name: 'Marketing căn bản', credits: 3 },
+  { id: 'eco101', code: 'ECO101', name: 'Kinh tế vi mô', credits: 3 },
+  { id: 'fin202', code: 'FIN202', name: 'Tài chính doanh nghiệp', credits: 3 },
+  { id: 'mgt101', code: 'MGT101', name: 'Quản trị học', credits: 3 },
+];
+
+/** Môn học theo ngành (mã ngành → danh sách môn). Mọi trường dùng chung danh sách mẫu này. */
+export const MOCK_SUBJECTS: Record<string, Subject[]> = {
+  se: IT_SUBJECTS,
+  cs: IT_SUBJECTS,
+  is: IT_SUBJECTS,
+  ai: IT_SUBJECTS,
+  ns: IT_SUBJECTS,
+  ba: BUSINESS_SUBJECTS,
+  mkt: BUSINESS_SUBJECTS,
+  fin: BUSINESS_SUBJECTS,
 };
 
 interface StoredAccount {
