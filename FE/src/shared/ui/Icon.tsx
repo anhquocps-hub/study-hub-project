@@ -264,3 +264,20 @@ export function IconX(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconSearch(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </Icon>
+  );
+}
+
+export function IconBook(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </Icon>
+  );
+}

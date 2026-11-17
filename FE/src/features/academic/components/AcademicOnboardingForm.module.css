@@ -1,0 +1,221 @@
+/* Form chọn Trường → Ngành → Môn, đặt trong thẻ của AuthLayout (cùng khung với trang Đăng ký). */
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+
+.linkBtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+.linkBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.subjects {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-lowest);
+}
+
+.subjectsHead {
+  display: flex;
+  float: left; /* để legend nằm trong khung thay vì cắt ngang viền */
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+  width: 100%;
+  padding: 0;
+}
+
+.subjectsTitle {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--color-success);
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+
+.placeholder {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-surface-bright);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-container);
+  color: var(--text-secondary);
+}
+
+.search:focus-within {
+  border: var(--border-active);
+  box-shadow: var(--color-primary-glow);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-container);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--color-surface-bright);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.chipOn,
+.chipOn:hover:not(:disabled) {
+  border: var(--border-active);
+  background: var(--color-primary-dim);
+}
+
+.chipText {
+  display: grid;
+  min-width: 0;
+}
+
+.chipCode {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-accent);
+}
+
+.chipName {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-surface-bright);
+  border-radius: var(--radius-xs);
+  color: var(--color-on-primary);
+}
+
+.chipOn .check {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.error {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-danger-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}
