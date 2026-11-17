@@ -186,6 +186,8 @@
 
 .filterBtn {
   display: flex;
+  border: 0;
+  cursor: pointer;
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
@@ -220,6 +222,11 @@
   text-align: center;
 }
 
+.filterBtn:hover {
+  color: var(--ui-text);
+}
+
+.filterBtn:focus-visible,
 .primaryBtn:focus-visible,
 .subjectInput input:focus-visible,
 .filterInfo button:focus-visible {

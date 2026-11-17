@@ -7,6 +7,7 @@ import iconSearch from '../assets/figma/feed-search.svg';
 import { useAuth } from '../features/auth';
 import { PostCard, PostFormModal, usePosts, type Post } from '../features/posts';
 import { useProfile } from '../features/profiles';
+import { AdvancedFilterModal, type SearchFilters } from '../features/search';
 import { Avatar, ErrorState, Skeleton } from '../shared/ui';
 import styles from './FeedPage.module.css';
 
@@ -29,6 +30,13 @@ export function FeedPage() {
   const navigate = useNavigate();
   // null = đóng; 'new' = tạo bài; Post = sửa bài đó
   const [editing, setEditing] = useState<Post | 'new' | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // Bộ lọc nâng cao mở từ Bảng tin: áp dụng xong chuyển sang trang Tìm kiếm, tab Bài viết
+  const openSearch = (filters: SearchFilters) => {
+    const params = new URLSearchParams(Object.entries(filters).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    void navigate(`/search?${params}`);
+  };
 
   const profile = profileState.status === 'success' ? profileState.data : null;
   const fullName = profile?.fullName ?? user?.fullName ?? '';
@@ -100,10 +108,10 @@ export function FeedPage() {
         ) : (
           <span />
         )}
-        <span className={styles.filterBtn} title="Sắp có">
+        <button type="button" className={styles.filterBtn} onClick={() => setFilterOpen(true)}>
           <img src={iconFilter} alt="" />
           BỘ LỌC NÂNG CAO
-        </span>
+        </button>
       </div>
 
       {state.status === 'loading' && (
@@ -138,6 +146,15 @@ export function FeedPage() {
             />
           ))}
         </div>
+      )}
+
+      {filterOpen && (
+        <AdvancedFilterModal
+          tab="posts"
+          value={subject ? { subject } : {}}
+          onApply={openSearch}
+          onClose={() => setFilterOpen(false)}
+        />
       )}
 
       {editing && (

@@ -10,6 +10,7 @@ import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
 import { RegisterPage } from '../../pages/RegisterPage';
+import { SearchPage } from '../../pages/SearchPage';
 import { UserProfilePage } from '../../pages/UserProfilePage';
 
 export const router = createBrowserRouter([
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <FeedPage /> },
           { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
+          { path: '/search', element: <SearchPage /> },
           { path: '/communities', element: <CommunitiesPage /> },
           { path: '/communities/:roomId', element: <CommunityPage /> },
         ],

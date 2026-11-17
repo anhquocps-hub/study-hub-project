@@ -68,10 +68,10 @@ function Sidebar() {
           <img src={iconFeed} alt="" />
           Bảng tin
         </NavLink>
-        <span className={`${styles.link} ${styles.soon}`} title="Sắp có">
+        <NavLink to="/search" className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}>
           <img src={iconExplore} alt="" />
           Khám phá &amp; Tìm kiếm
-        </span>
+        </NavLink>
 
         <button
           type="button"
@@ -144,7 +144,7 @@ function Header() {
   const search = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = new FormData(event.currentTarget).get('q')?.toString().trim() ?? '';
-    navigate(query ? `/?subject=${encodeURIComponent(query)}` : '/');
+    navigate(query ? `/search?q=${encodeURIComponent(query)}` : '/search');
   };
 
   return (
