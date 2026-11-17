@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import iconCalendar from '../../../assets/figma/com-calendar.svg';
 import iconChevron from '../../../assets/figma/chat-chevron.svg';
@@ -81,8 +81,34 @@ function ChannelLink({ channel, active, kind, onSelect }: { channel: Channel; ac
   );
 }
 
-function Sidebar({ room, activeId, onSelect }: { room: ChatRoom; activeId: string; onSelect: (id: string) => void }) {
+interface SidebarProps {
+  room: ChatRoom;
+  activeId: string;
+  onSelect: (id: string) => void;
+  settingsMenu?: ReactNode;
+}
+
+function Sidebar({ room, activeId, onSelect, settingsMenu }: SidebarProps) {
   const isCommunity = room.kind === 'COMMUNITY';
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLSpanElement>(null);
+
+  // Đóng menu khi bấm ra ngoài hoặc nhấn Esc
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointer = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
   return (
     <aside className={styles.sidebar} aria-label={`Kênh của ${room.name}`}>
       <div className={styles.roomHead}>
@@ -91,9 +117,18 @@ function Sidebar({ room, activeId, onSelect }: { room: ChatRoom; activeId: strin
             <h2 className={styles.roomName}>{room.name}</h2>
             <span className={`${styles.badge} ${styles.roomBadge} ${styles[room.badge.tone]}`}>{room.badge.text}</span>
           </div>
-          <button type="button" className={styles.iconBtn} aria-label="Cài đặt">
-            <img src={isCommunity ? iconComSettings : iconSettings} alt="" />
-          </button>
+          <span className={styles.settingsWrap} ref={menuRef}>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              aria-label="Cài đặt"
+              aria-expanded={settingsMenu ? menuOpen : undefined}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <img src={isCommunity ? iconComSettings : iconSettings} alt="" />
+            </button>
+            {settingsMenu && menuOpen && <div className={styles.settingsMenu}>{settingsMenu}</div>}
+          </span>
         </div>
         <p className={styles.roomSubtitle}>{room.subtitle}</p>
         {isCommunity && (
@@ -143,10 +178,14 @@ function MemberStack({ room }: { room: ChatRoom }) {
 
 interface ChatWorkspaceProps {
   room: ChatRoom;
+  /** Thay ô soạn tin, ví dụ thanh mời tham gia khi người xem chưa là thành viên. */
+  composer?: ReactNode;
+  /** Nội dung menu mở từ nút bánh răng, ví dụ nút Rời cộng đồng. */
+  settingsMenu?: ReactNode;
 }
 
 /** Màn hình chat dùng chung cho Không gian nhóm (SPACE) và Cộng đồng môn học (COMMUNITY). */
-export function ChatWorkspace({ room }: ChatWorkspaceProps) {
+export function ChatWorkspace({ room, composer, settingsMenu }: ChatWorkspaceProps) {
   const isCommunity = room.kind === 'COMMUNITY';
   const allChannels = useMemo(() => room.channelGroups.flatMap((group) => group.channels), [room]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -172,7 +211,7 @@ export function ChatWorkspace({ room }: ChatWorkspaceProps) {
 
   return (
     <div className={`${styles.root} ${isCommunity ? styles.community : styles.space}`}>
-      <Sidebar room={room} activeId={channel.id} onSelect={selectChannel} />
+      <Sidebar room={room} activeId={channel.id} onSelect={selectChannel} settingsMenu={settingsMenu} />
 
       <section className={styles.main} aria-label={`Kênh #${channel.name}`}>
         <header className={styles.topBar}>
@@ -302,7 +341,7 @@ export function ChatWorkspace({ room }: ChatWorkspaceProps) {
           )}
         </div>
 
-        <ChatComposer kind={room.kind} channelName={channel.name} onSend={send} />
+        {composer ?? <ChatComposer kind={room.kind} channelName={channel.name} onSend={send} />}
       </section>
     </div>
   );

@@ -1406,3 +1406,21 @@
     display: none;
   }
 }
+
+.settingsWrap {
+  position: relative;
+  flex: none;
+}
+
+.settingsMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-card);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}

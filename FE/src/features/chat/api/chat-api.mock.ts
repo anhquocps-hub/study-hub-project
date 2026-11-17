@@ -7,6 +7,7 @@ import avatarMai2 from '../../../assets/figma/avatar-mai-2.png';
 import avatarThayA from '../../../assets/figma/avatar-thay-a.png';
 import avatarTuan from '../../../assets/figma/avatar-tran-tuan.png';
 import { ApiError } from '../../../services/http-client';
+import { MOCK_COMMUNITIES } from '../../../test/mock-communities';
 import { mockDb } from '../../../test/mock-db';
 import type { Channel, ChatEvent, ChatRoom, Message, RoomSummary } from '../model/chat-schemas';
 
@@ -126,9 +127,6 @@ function simpleRoom(summary: RoomSummary): ChatRoom {
 }
 
 const MY_ROOMS: RoomSummary[] = [
-  { id: 'csdl-db01', kind: 'COMMUNITY', name: 'Cơ sở dữ liệu (CSDL DB01)', badge: { text: 'HCMUTE', tone: 'muted' } },
-  { id: 'web-nang-cao', kind: 'COMMUNITY', name: 'Lập trình Web Nâng cao', badge: { text: 'SE302', tone: 'purple' } },
-  { id: 'dsa', kind: 'COMMUNITY', name: 'Cấu trúc dữ liệu & Giải thuật', badge: { text: 'DSA', tone: 'green' } },
   { id: 'expense-tracker', kind: 'SPACE', name: 'Expense Tracker', badge: { text: 'Project', tone: 'green' } },
   { id: 'on-thi-csdl', kind: 'SPACE', name: 'Ôn thi CSDL DB01', badge: { text: 'Study', tone: 'purple' } },
 ];
@@ -242,9 +240,15 @@ export async function getRoom(kind: ChatRoom['kind'], roomId: string, signal?: A
   requireSession();
   const room = ROOMS.find((item) => item.id === roomId && item.kind === kind);
   if (room) return room;
-  const summary = MY_ROOMS.find((item) => item.id === roomId && item.kind === kind);
+  const community = kind === 'COMMUNITY' ? MOCK_COMMUNITIES.find((item) => item.id === roomId) : undefined;
+  const summary: RoomSummary | undefined = community
+    ? { id: community.id, kind, name: community.name, badge: { text: community.subjectCode ?? 'Cộng đồng', tone: 'solid' } }
+    : MY_ROOMS.find((item) => item.id === roomId && item.kind === kind);
   if (!summary) throw new ApiError(404, kind === 'SPACE' ? 'Không tìm thấy nhóm.' : 'Không tìm thấy cộng đồng.');
-  return simpleRoom(summary);
+  const fallback = simpleRoom(summary);
+  if (!community) return fallback;
+  const subtitle = [community.university?.shortName, community.subjectCode].filter(Boolean).join(' • ') || 'Cộng đồng sở thích';
+  return { ...fallback, subtitle, description: community.description, memberCount: community.memberCount };
 }
 
 export async function getMessages(channelId: string, signal?: AbortSignal): Promise<Message[]> {

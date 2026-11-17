@@ -14,12 +14,14 @@ import {
 const WS_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000').replace(/^http/, 'ws');
 
 function roomPath(kind: ChatRoom['kind'], roomId: string) {
-  return `/${kind === 'SPACE' ? 'spaces' : 'communities'}/${encodeURIComponent(roomId)}`;
+  // /communities/:id là thông tin cộng đồng (feature communities); phần chat nằm ở /chat
+  const id = encodeURIComponent(roomId);
+  return kind === 'SPACE' ? `/spaces/${id}` : `/communities/${id}/chat`;
 }
 
-/** Các cộng đồng và nhóm mà người dùng đang tham gia (hiện ở thanh bên trái). */
+/** Các không gian nhóm (Space) mà người dùng đang tham gia (hiện ở thanh bên trái). */
 export async function getMyRooms(signal?: AbortSignal): Promise<RoomSummary[]> {
-  return z.array(roomSummarySchema).parse(await request('/me/rooms', { signal }));
+  return z.array(roomSummarySchema).parse(await request('/me/spaces', { signal }));
 }
 
 export async function getRoom(kind: ChatRoom['kind'], roomId: string, signal?: AbortSignal): Promise<ChatRoom> {
