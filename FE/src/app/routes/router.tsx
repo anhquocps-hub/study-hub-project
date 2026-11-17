@@ -7,6 +7,7 @@ import { FeedPage } from '../../pages/FeedPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
+import { OnboardingPage } from '../../pages/OnboardingPage';
 import { RegisterPage } from '../../pages/RegisterPage';
 import { UserProfilePage } from '../../pages/UserProfilePage';
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
           { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
         ],
       },
+      { path: '/onboarding', element: <OnboardingPage /> },
       { path: '/profile/me', element: <MyProfilePage /> },
       { path: '/profile/edit', element: <EditProfilePage /> },
       { path: '/users/:userId', element: <UserProfilePage /> },

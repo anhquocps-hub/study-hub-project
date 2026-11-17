@@ -61,7 +61,7 @@ export function RegisterForm() {
 
   const handleRegister = handleSubmit(async (values) => {
     try {
-      await registerAccount(values); // thành công → GuestOnly đưa sang /profile/edit để thêm ngành học
+      await registerAccount(values); // thành công → GuestOnly đưa sang /onboarding để chọn ngành, môn học
     } catch (error) {
       if (!(error instanceof ApiError)) {
         setError('root.server', { message: GENERIC_ERROR });

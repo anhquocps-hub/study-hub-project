@@ -1,0 +1,20 @@
+/* Nút trong hộp cuối thẻ, trông giống liên kết "Đăng nhập ngay" của AuthLayout. */
+.logout {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.logout:hover {
+  text-decoration: underline;
+}
+
+.logout:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
