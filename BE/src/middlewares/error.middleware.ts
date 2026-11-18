@@ -3,12 +3,22 @@ import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import { AppError } from '../utils/errors.js';
 
+interface HttpErrorLike {
+  status?: number;
+  statusCode?: number;
+  message?: string;
+}
+
 export function errorHandler(
   err: unknown,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ): void {
+  if (res.headersSent) {
+    return next(err);
+  }
+
   if (err instanceof AppError) {
     res.status(err.status).json({
       message: err.message,
@@ -61,6 +71,19 @@ export function errorHandler(
     if (err.code === 'P2025') {
       res.status(404).json({
         message: 'Không tìm thấy bản ghi yêu cầu.',
+        fieldErrors: {},
+      });
+      return;
+    }
+  }
+
+  // Xử lý các lỗi HTTP 4xx từ body-parser / express.json() (vd: malformed JSON payload 400, payload too large 413)
+  if (typeof err === 'object' && err !== null) {
+    const candidate = err as HttpErrorLike;
+    const statusCode = candidate.status ?? candidate.statusCode;
+    if (typeof statusCode === 'number' && statusCode >= 400 && statusCode < 500) {
+      res.status(statusCode).json({
+        message: candidate.message ?? 'Yêu cầu không hợp lệ.',
         fieldErrors: {},
       });
       return;

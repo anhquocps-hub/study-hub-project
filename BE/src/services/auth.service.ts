@@ -32,6 +32,11 @@ export interface AuthResult {
   refreshToken: string;
 }
 
+// Dummy hash chuẩn bcrypt dùng để ngăn tấn công Timing Attack / User Enumeration khi email không tồn tại
+const DUMMY_HASH = '$2a$10$wN1g475fV9eM68KeqV892exh9c5oK20dsmxZkVY6X9X9u6lR9rL2q';
+// Khoảng thời gian ân hạn (grace period) cho refresh token (15 giây) để xử lý đa tab refresh đồng thời
+const REFRESH_GRACE_PERIOD_MS = 15_000;
+
 export class AuthService {
   static async register(dto: RegisterDto): Promise<AuthResult> {
     if (!dto.acceptTerms) {
@@ -130,17 +135,17 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    // Luôn chạy comparePassword (dù user có tồn tại hay không) để tránh chênh lệch thời gian phản hồi (Timing difference)
+    const hashToCompare = user ? user.passwordHash : DUMMY_HASH;
+    const isMatch = await comparePassword(dto.password, hashToCompare);
+
+    if (!user || !isMatch) {
       throw new UnauthorizedError('Email hoặc mật khẩu không chính xác.');
     }
 
+    // Chỉ kiểm tra status sau khi mật khẩu đã khớp đúng
     if (user.status === UserStatus.BANNED) {
       throw new ForbiddenError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
-    }
-
-    const isMatch = await comparePassword(dto.password, user.passwordHash);
-    if (!isMatch) {
-      throw new UnauthorizedError('Email hoặc mật khẩu không chính xác.');
     }
 
     const payload: TokenPayload = {
@@ -185,23 +190,37 @@ export class AuthService {
       include: { user: { include: { profile: { select: { majorId: true } } } } },
     });
 
-    // Phát hiện Refresh Token bị dùng lại (Token Reuse Detection) hoặc đã bị thu hồi
-    if (!tokenRecord || tokenRecord.revokedAt !== null || tokenRecord.expiresAt < new Date()) {
-      if (tokenRecord && tokenRecord.revokedAt !== null) {
-        // Khả năng rò rỉ token: Thu hồi toàn bộ session của user này để bảo vệ
+    if (!tokenRecord || tokenRecord.expiresAt < new Date()) {
+      throw new UnauthorizedError('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
+    }
+
+    // Nếu token đã bị thu hồi trước đó
+    if (tokenRecord.revokedAt !== null) {
+      const revokedElapsed = Date.now() - tokenRecord.revokedAt.getTime();
+      // Nếu thời gian thu hồi vượt quá khoảng ân hạn (grace period) -> Tấn công tái sử dụng (Token Reuse Attack)
+      if (revokedElapsed > REFRESH_GRACE_PERIOD_MS) {
         await prisma.refreshToken.updateMany({
           where: { userId: payload.userId, revokedAt: null },
           data: { revokedAt: new Date() },
         });
+        throw new UnauthorizedError('Phát hiện nghi vấn rò rỉ phiên. Vui lòng đăng nhập lại.');
       }
-      throw new UnauthorizedError('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
-    }
+      // Nếu trong khoảng ân hạn (do nhiều tab trình duyệt refresh đồng thời), tiếp tục cấp token
+    } else {
+      // Thực hiện thu hồi atomic: chỉ update nếu revokedAt vẫn đang là null
+      const updated = await prisma.refreshToken.updateMany({
+        where: { id: tokenRecord.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
 
-    // Thu hồi token cũ (Token Rotation)
-    await prisma.refreshToken.update({
-      where: { id: tokenRecord.id },
-      data: { revokedAt: new Date() },
-    });
+      if (updated.count === 0) {
+        // Có request khác vừa claim token này ngay trước tích tắc
+        const reloaded = await prisma.refreshToken.findUnique({ where: { id: tokenRecord.id } });
+        if (!reloaded || (reloaded.revokedAt && Date.now() - reloaded.revokedAt.getTime() > REFRESH_GRACE_PERIOD_MS)) {
+          throw new UnauthorizedError('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
+        }
+      }
+    }
 
     const user = tokenRecord.user;
     if (user.status === UserStatus.BANNED) {
@@ -292,11 +311,13 @@ export class AuthService {
       },
     });
 
-    // Trong môi trường dev, có thể trả về resetToken để tiện test
-    const isProduction = process.env.NODE_ENV === 'production';
+    // Chỉ trả về resetToken khi có cờ EXPOSE_RESET_TOKEN=true trong môi trường development hoặc test
+    const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || !process.env.NODE_ENV;
+    const canExpose = isDevOrTest && process.env.EXPOSE_RESET_TOKEN === 'true';
+
     return {
       message: 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.',
-      ...(isProduction ? {} : { resetToken }),
+      ...(canExpose ? { resetToken } : {}),
     };
   }
 
