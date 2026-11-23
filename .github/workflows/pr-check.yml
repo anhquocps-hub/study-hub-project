@@ -1,0 +1,91 @@
+# Kiểm tra quy tắc nhánh và conflict cho Pull Request.
+#
+# Dùng pull_request_target vì GitHub KHÔNG chạy workflow pull_request khi PR đang bị conflict,
+# nên chỉ cách này mới báo được conflict. Workflow này chạy với quyền của repo gốc, vì vậy
+# tuyệt đối không cài đặt hay chạy code từ nhánh của PR; chỉ dùng lệnh git để thử merge.
+name: PR check
+
+on:
+  pull_request_target:
+    branches: [dev, main]
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  rules:
+    name: Branch rules & merge conflicts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Only dev or hotfix/* may target main
+        if: github.event.pull_request.base.ref == 'main'
+        run: |
+          if [ "$HEAD_REF" != "dev" ] && [[ "$HEAD_REF" != hotfix/* ]]; then
+            echo "::error::PR vào main chỉ được mở từ nhánh dev (hoặc hotfix/*). Nhánh hiện tại: $HEAD_REF. Hãy đổi base của PR sang dev."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Check merge conflicts
+        run: |
+          git fetch --no-tags origin "pull/$PR_NUMBER/head:pr-head"
+
+          marker='<!-- pr-conflict-check -->'
+          comment_id=$(gh api "repos/$GH_REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n 1)
+
+          if output=$(git merge-tree --write-tree --name-only --no-messages "origin/$BASE_REF" pr-head); then
+            echo "Không có conflict với $BASE_REF."
+            if [ -n "$comment_id" ]; then
+              gh api -X PATCH "repos/$GH_REPO/issues/comments/$comment_id" \
+                -f body="$marker"$'\n'"✅ Conflict với \`$BASE_REF\` đã được giải quyết."
+            fi
+            exit 0
+          fi
+
+          files=$(echo "$output" | tail -n +2 | sed '/^$/d')
+          list=$(echo "$files" | sed 's/^/- `/; s/$/`/')
+          body="$marker
+          ❌ **PR đang bị conflict với \`$BASE_REF\`** ở các file:
+
+          $list
+
+          Cách sửa trên máy:
+          \`\`\`sh
+          git switch $HEAD_REF
+          git fetch origin
+          git merge origin/$BASE_REF
+          # sửa các file trên, rồi chạy lại typecheck/test/build
+          git add <file-da-sua>
+          git commit
+          git push
+          \`\`\`"
+
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/$GH_REPO/issues/comments/$comment_id" -f body="$body"
+          else
+            gh pr comment "$PR_NUMBER" --body "$body"
+          fi
+
+          echo "$body" >> "$GITHUB_STEP_SUMMARY"
+          while IFS= read -r f; do
+            echo "::error file=$f::Conflict với $BASE_REF"
+          done <<< "$files"
+          exit 1
