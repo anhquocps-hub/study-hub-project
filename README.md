@@ -1,4 +1,4 @@
-# Study Hub
+# UniSpace
 
 Monorepo đơn giản gồm React (`FE`), Node.js/Express (`BE`) và PostgreSQL. Docker Compose chỉ chạy database trong giai đoạn phát triển.
 
@@ -40,7 +40,7 @@ Trên PowerShell, dùng `Copy-Item .env.example .env` thay cho `cp` nếu cần.
 
 ## Database và migration
 
-`BE/prisma/schema.prisma` hiện chưa có model vì các thực thể Study Hub chưa được xác định. Sau khi thêm model, chạy trong `BE`:
+`BE/prisma/schema.prisma` hiện chưa có model vì các thực thể UniSpace chưa được xác định. Sau khi thêm model, chạy trong `BE`:
 
 ```sh
 npm run db:migrate -- --name initial
@@ -195,3 +195,26 @@ git pull origin dev
 ```
 
 Không merge `main` ngược vào `dev` nếu không có thay đổi riêng trên `main`. Nếu có hotfix trực tiếp từ `main`, phải tạo Pull Request đồng bộ hotfix đó trở lại `dev` ngay sau khi phát hành.
+
+## CI trên GitHub Actions
+
+Mỗi Pull Request vào `dev` hoặc `main` tự động chạy hai workflow trong `.github/workflows/`:
+
+| Workflow | Check | Nội dung |
+|---|---|---|
+| `pr-check.yml` | **Branch rules & merge conflicts** | Thử merge PR vào nhánh đích. Nếu conflict, check báo đỏ và bot comment danh sách file bị conflict kèm cách sửa. PR vào `main` chỉ được mở từ `dev` hoặc `hotfix/*`. |
+| `ci.yml` | **Frontend** | `npm ci`, `typecheck`, `test`, `build` trong `FE`. |
+| `ci.yml` | **Backend** | `npm ci`, `prisma validate`, `db:generate`, `typecheck`, `test`, `build` trong `BE`. |
+| `ci.yml` | **CI passed** | Chỉ xanh khi cả Frontend và Backend đều xanh. |
+
+`ci.yml` cũng chạy lại sau mỗi lần merge vào `dev` hoặc `main` để chắc chắn nhánh vẫn sạch.
+
+Nếu check đỏ: bấm **Details** cạnh check trong PR để xem lỗi, sửa trên nhánh feature, rồi push lại; CI sẽ tự chạy lại.
+
+### Branch protection (cấu hình một lần trong Settings → Branches)
+
+Cho cả `dev` và `main`:
+
+- Bắt buộc merge qua Pull Request, cấm push trực tiếp và force push.
+- Bắt buộc các status check **CI passed** và **Branch rules & merge conflicts** phải xanh.
+- `main`: nhánh phải cập nhật với `main` trước khi merge. Không bắt buộc người duyệt; nhóm trưởng kiểm tra `dev` rồi tự merge vào `main` (dùng **Create a merge commit**, không squash).
