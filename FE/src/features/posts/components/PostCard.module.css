@@ -348,8 +348,13 @@
   cursor: pointer;
 }
 
-.action:hover {
+.action:hover:not(:disabled) {
   color: var(--ui-text);
+}
+
+.action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .liked {
@@ -373,4 +378,18 @@
   .studyGrid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.timeLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.timeLink:hover {
+  text-decoration: underline;
+}
+
+.timeLink:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
 }

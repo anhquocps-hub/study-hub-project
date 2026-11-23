@@ -9,7 +9,7 @@ export function ProfileProjects({ projects, isOwner }: { projects: Profile['proj
       {projects.length === 0 ? (
         <SectionEmpty>
           {isOwner
-            ? 'Chưa có project nào. Project sẽ tự hiện ở đây khi bạn tham gia một nhóm trên Study Hub.'
+            ? 'Chưa có project nào. Project sẽ tự hiện ở đây khi bạn tham gia một nhóm trên UniSpace.'
             : 'Chưa tham gia project nào.'}
         </SectionEmpty>
       ) : (

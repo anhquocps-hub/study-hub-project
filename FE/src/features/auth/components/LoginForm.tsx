@@ -62,7 +62,7 @@ export function LoginForm() {
         trailingIcon={<IconArrowRight />}
         className={styles.submit}
       >
-        Đăng nhập vào Study Hub
+        Đăng nhập vào UniSpace
       </Button>
     </form>
   );

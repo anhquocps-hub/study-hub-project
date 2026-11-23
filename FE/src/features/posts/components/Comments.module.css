@@ -1,0 +1,265 @@
+/* Phần bình luận dưới bài viết (CommentSection, CommentItem, CommentComposer). */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border-soft);
+}
+
+.list {
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonRow {
+  display: flex;
+  gap: 8px;
+}
+
+/* --- Một bình luận --- */
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.avatarLink {
+  flex: none;
+  text-decoration: none;
+}
+
+.avatar,
+.avatarSm,
+.composerAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.avatarSm {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+.commentMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bubble {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-chip);
+}
+
+.commentAuthor {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--ui-text);
+  text-decoration: none;
+}
+
+.commentAuthor:hover {
+  text-decoration: underline;
+}
+
+.commentContent {
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ui-text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.commentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding-left: 12px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--ui-text-3);
+}
+
+.metaBtn,
+.linkBtn,
+.repliesToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ui-text-2);
+  cursor: pointer;
+}
+
+.metaBtn:hover,
+.linkBtn:hover,
+.repliesToggle:hover {
+  color: var(--ui-text);
+  text-decoration: underline;
+}
+
+.metaBtn:disabled,
+.linkBtn:disabled,
+.linkBtn[aria-disabled='true'],
+.repliesToggle:disabled {
+  cursor: default;
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+.danger {
+  color: var(--ui-red);
+}
+
+.repliesToggle {
+  align-self: flex-start;
+  padding-left: 12px;
+  font-size: 12px;
+  color: var(--ui-accent);
+}
+
+.linkBtnPrimary {
+  color: var(--ui-accent);
+}
+
+.replies {
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.muted {
+  font-size: 12px;
+  color: var(--ui-text-3);
+}
+
+.error {
+  font-size: 12px;
+  color: var(--ui-red);
+}
+
+/* --- Ô viết bình luận --- */
+.composer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.composerBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.composerBox {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-card-low);
+}
+
+.composerBox:focus-within {
+  border-color: var(--ui-accent);
+}
+
+.composerInput {
+  flex: 1;
+  min-height: 24px;
+  max-height: 160px;
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ui-text);
+  resize: none;
+  field-sizing: content;
+}
+
+.composerInput::placeholder {
+  color: var(--ui-text-3);
+}
+
+.composerInput:focus {
+  outline: none;
+}
+
+.sendBtn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-accent-dim);
+  cursor: pointer;
+}
+
+.sendBtn img {
+  width: 16px;
+  height: 16px;
+}
+
+.sendBtn[aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.composerFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 16px;
+  padding-left: 12px;
+  font-size: 11px;
+}
+
+.composerActions {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.hint {
+  color: var(--ui-text-3);
+}
+
+.metaBtn:focus-visible,
+.linkBtn:focus-visible,
+.repliesToggle:focus-visible,
+.sendBtn:focus-visible,
+.commentAuthor:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .replies {
+    margin-left: -24px;
+  }
+}

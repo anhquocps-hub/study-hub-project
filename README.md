@@ -1,4 +1,4 @@
-# Study Hub
+# UniSpace
 
 Monorepo đơn giản gồm React (`FE`), Node.js/Express (`BE`) và PostgreSQL. Docker Compose chỉ chạy database trong giai đoạn phát triển.
 
@@ -40,7 +40,7 @@ Trên PowerShell, dùng `Copy-Item .env.example .env` thay cho `cp` nếu cần.
 
 ## Database và migration
 
-`BE/prisma/schema.prisma` hiện chưa có model vì các thực thể Study Hub chưa được xác định. Sau khi thêm model, chạy trong `BE`:
+`BE/prisma/schema.prisma` hiện chưa có model vì các thực thể UniSpace chưa được xác định. Sau khi thêm model, chạy trong `BE`:
 
 ```sh
 npm run db:migrate -- --name initial

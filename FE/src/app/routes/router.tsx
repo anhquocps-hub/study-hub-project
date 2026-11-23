@@ -7,6 +7,7 @@ import { FeedPage } from '../../pages/FeedPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
+import { PostDetailPage } from '../../pages/PostDetailPage';
 import { RegisterPage } from '../../pages/RegisterPage';
 import { UserProfilePage } from '../../pages/UserProfilePage';
 
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/', element: <FeedPage /> },
+          { path: '/posts/:postId', element: <PostDetailPage /> },
           { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
           { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
         ],
