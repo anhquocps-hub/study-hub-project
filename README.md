@@ -217,4 +217,4 @@ Cho cả `dev` và `main`:
 
 - Bắt buộc merge qua Pull Request, cấm push trực tiếp và force push.
 - Bắt buộc các status check **CI passed** và **Branch rules & merge conflicts** phải xanh.
-- `main`: thêm yêu cầu ít nhất 1 người duyệt và nhánh phải cập nhật với `main` trước khi merge.
+- `main`: nhánh phải cập nhật với `main` trước khi merge. Không bắt buộc người duyệt; nhóm trưởng kiểm tra `dev` rồi tự merge vào `main` (dùng **Create a merge commit**, không squash).
