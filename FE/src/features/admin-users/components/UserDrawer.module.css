@@ -175,6 +175,12 @@
   background: rgba(28, 43, 60, 0.4);
 }
 
+/* Bỏ lề mặc định của trình duyệt cho <dd> */
+.stats dd,
+.grid dd {
+  margin: 0;
+}
+
 .stats dt {
   font-size: 10px;
   line-height: 20px;
