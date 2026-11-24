@@ -14,3 +14,4 @@ export { Skeleton } from './Skeleton';
 export { TextArea } from './TextArea';
 export { TextField, type TextFieldProps } from './TextField';
 export { ConfirmDialog, FOCUS_FALLBACK_ATTR } from './ConfirmDialog';
+export { INERT_PROPS } from './inert';
