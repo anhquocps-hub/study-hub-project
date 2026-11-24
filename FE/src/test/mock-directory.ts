@@ -4,7 +4,7 @@
  * - MOCK_USER_EXTRAS: trường mở rộng mà BE chưa có, cho mọi tài khoản trong mock.
  * Các tài khoản ở đây không có mật khẩu nên không đăng nhập được.
  */
-import type { AdminUserExtras } from '../features/admin-users/model/admin-user-schemas';
+import { EMPTY_EXTRAS, type AdminUserExtras, type DirectoryStats } from '../features/admin-users/model/admin-user-schemas';
 import type { StoredAccount } from './mock-db';
 
 const HCMUTE = { id: 'hcmute', name: 'ĐH Sư Phạm Kỹ Thuật (HCMUTE)' };
@@ -45,20 +45,6 @@ function account(input: {
     },
   };
 }
-
-const EMPTY_EXTRAS: AdminUserExtras = {
-  avatarUrl: null,
-  username: null,
-  cohort: null,
-  faculty: null,
-  className: null,
-  title: null,
-  highlight: null,
-  skills: null,
-  trustScore: null,
-  violationSummary: null,
-  moderation: null,
-};
 
 // ——— 5 người dùng trong thiết kế (frame 25:5350) ———
 const DESIGN_ACCOUNTS: StoredAccount[] = [
@@ -257,7 +243,7 @@ export const MOCK_USER_EXTRAS: Record<string, AdminUserExtras> = {
 };
 
 /** 5 ô thống kê đầu trang, số như thiết kế. */
-export const MOCK_DIRECTORY_STATS = {
+export const MOCK_DIRECTORY_STATS: DirectoryStats = {
   total: { value: 14820, delta: '+320 t/n' },
   online: { value: 3482, ratio: '23.4%' },
   warned: { value: 38 },
