@@ -8,3 +8,20 @@
   line-height: 16px;
   color: var(--text-secondary);
 }
+
+/* Dòng cam kết bảo mật cuối thẻ Đăng nhập (Figma 38:1459) */
+.compliance {
+  flex-basis: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.compliance svg {
+  color: #4edea3;
+}
