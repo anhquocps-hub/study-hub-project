@@ -436,6 +436,10 @@
   background: rgba(76, 215, 246, 0.05) !important;
 }
 
+.clickableRow {
+  cursor: pointer;
+}
+
 .checkCell {
   width: 41px;
   padding-left: 14px !important;

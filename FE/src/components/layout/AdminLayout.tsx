@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import iconFeed from '../../assets/figma/nav-feed.svg';
 import { IconArrowLeft, INERT_PROPS } from '../../shared/ui';
 import { AppHeader } from './AppLayout';
@@ -23,10 +23,10 @@ function AdminSidebar() {
           <img src={iconFeed} alt="" />
           Bảng tin &amp; Khám phá
         </NavLink>
-        <NavLink to="/profile/me" className={shell.link}>
+        <Link to="/" className={shell.link}>
           <IconArrowLeft size={16} />
           Về giao diện sinh viên
-        </NavLink>
+        </Link>
 
         <p className={`${shell.section} ${styles.adminSection}`}>
           <span>QUẢN TRỊ HỆ THỐNG</span>

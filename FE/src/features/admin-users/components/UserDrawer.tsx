@@ -151,36 +151,48 @@ interface UserDrawerProps {
 
 /**
  * Ngăn chi tiết trượt từ phải (Figma "Detailed User Drawer", rộng 576px).
- * Đóng bằng nút X, "Đóng ngăn", phím Esc hoặc bấm nền mờ. Mở thì focus vào ngăn, đóng thì trả focus về nút đã mở.
+ * Dùng <dialog> native mở bằng showModal() giống ConfirmDialog: nền phía sau bị khóa và focus giữ trong ngăn.
+ * Đóng bằng nút X, "Đóng ngăn", phím Esc hoặc bấm vùng nền mờ. Đóng thì trả focus về nút đã mở.
  */
 export function UserDrawer({ userId, onClose }: UserDrawerProps) {
   const { user: me } = useAuth();
   const { state, retry } = useAdminUserDetail(userId);
-  const panelRef = useRef<HTMLElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
-  const onCloseRef = useRef(onClose);
-
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  });
 
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    panelRef.current?.focus();
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCloseRef.current();
-    };
-    document.addEventListener('keydown', handleKey);
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    dialog?.focus();
     return () => {
-      document.removeEventListener('keydown', handleKey);
+      dialog?.close();
       if (opener?.isConnected) opener.focus();
     };
   }, []);
 
   return (
-    <div className={styles.layer}>
-      <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
-      <aside ref={panelRef} className={styles.panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
+    <dialog
+      ref={dialogRef}
+      className={styles.panel}
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      onCancel={(event) => {
+        event.preventDefault(); // để React quyết định việc đóng
+        onClose();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          onClose();
+        }
+      }}
+      onClick={(event) => {
+        // Bấm vào vùng nền mờ (::backdrop) thì sự kiện rơi vào chính <dialog>.
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className={styles.inner}>
         <header className={styles.header}>
           <p className={styles.headerTitle}>
             <span id={titleId}>Hồ sơ Quản trị Chi tiết</span>
@@ -218,7 +230,7 @@ export function UserDrawer({ userId, onClose }: UserDrawerProps) {
             Đóng ngăn
           </button>
         </footer>
-      </aside>
-    </div>
+      </div>
+    </dialog>
   );
 }

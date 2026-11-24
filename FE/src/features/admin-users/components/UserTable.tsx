@@ -15,16 +15,25 @@ interface UserRowProps {
   user: AdminUser;
   selected: boolean;
   onSelect: () => void;
+  onOpen: () => void;
   actions: ReactNode;
 }
 
-function UserRow({ user, selected, onSelect, actions }: UserRowProps) {
+/** Bấm vào hàng thì mở chi tiết, trừ khi bấm vào nút/ô chọn/menu bên trong hàng. */
+const INTERACTIVE = 'button, input, a, select, [role="menu"]';
+
+function UserRow({ user, selected, onSelect, onOpen, actions }: UserRowProps) {
   const created = formatDateTime(user.createdAt);
   const isBanned = user.status === 'BANNED';
   const subline = [user.studentId ? `MSSV: ${user.studentId}` : user.title, user.cohort].filter(Boolean).join(' • ');
 
   return (
-    <tr className={selected ? styles.rowSelected : undefined}>
+    <tr
+      className={`${styles.clickableRow} ${selected ? styles.rowSelected : ''}`}
+      onClick={(event) => {
+        if (!(event.target as HTMLElement).closest(INTERACTIVE)) onOpen();
+      }}
+    >
       <td className={styles.checkCell}>
         <input type="checkbox" aria-label={`Chọn ${user.fullName}`} checked={selected} onChange={onSelect} />
       </td>
@@ -94,11 +103,12 @@ interface UserTableProps {
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
   onToggleAll: () => void;
+  onOpen: (id: string) => void;
   renderActions: (user: AdminUser) => ReactNode;
 }
 
 /** Bảng người dùng (Figma "Main User Table"). Trường mở rộng null hiện "—". */
-export function UserTable({ users, selectedIds, onToggle, onToggleAll, renderActions }: UserTableProps) {
+export function UserTable({ users, selectedIds, onToggle, onToggleAll, onOpen, renderActions }: UserTableProps) {
   const allSelected = users.length > 0 && users.every((user) => selectedIds.has(user.id));
   return (
     <table className={styles.table} aria-label="Danh sách người dùng">
@@ -123,6 +133,7 @@ export function UserTable({ users, selectedIds, onToggle, onToggleAll, renderAct
             user={user}
             selected={selectedIds.has(user.id)}
             onSelect={() => onToggle(user.id)}
+            onOpen={() => onOpen(user.id)}
             actions={renderActions(user)}
           />
         ))}

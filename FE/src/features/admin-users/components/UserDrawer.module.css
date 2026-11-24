@@ -1,28 +1,27 @@
 /* Ngăn chi tiết người dùng — Figma 25:5350 "Detailed User Drawer" */
-.layer {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(1, 15, 31, 0.6);
-}
-
 .panel {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* <dialog> modal: ghim sát cạnh phải, cao hết màn hình */
   width: min(576px, 100%);
-  height: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
   background: var(--ui-bg-lowest);
   box-shadow: -25px 0 50px rgba(0, 0, 0, 0.25);
   color: var(--ui-text);
   animation: slide-in 0.2s ease-out;
+}
+
+.panel::backdrop {
+  background: rgba(1, 15, 31, 0.6);
+}
+
+.inner {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
 }
 
 .panel:focus {

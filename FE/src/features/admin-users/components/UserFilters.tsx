@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IconChevronDown, IconSearch, INERT_PROPS } from '../../../shared/ui';
 import type { UserListQuery, UserRole, UserStatus } from '../model/admin-user-schemas';
 import styles from './UserDirectory.module.css';
@@ -13,15 +13,23 @@ interface UserFiltersProps {
 
 export function UserFilters({ query, onChange }: UserFiltersProps) {
   const [search, setSearch] = useState(query.search);
+  // Giá trị gần nhất ô này đã gửi lên URL. URL đổi vì chính ô này thì không ghi đè lại ô nhập,
+  // để không mất dấu cách cuối hay chữ vừa gõ thêm trong lúc URL đang cập nhật.
+  const lastSentRef = useRef(query.search);
 
-  // Bộ lọc trên URL đổi từ nơi khác (ví dụ quay lại trang) thì cập nhật ô nhập.
+  // Bộ lọc trên URL đổi từ nơi khác (ví dụ nút Back) thì cập nhật ô nhập.
   useEffect(() => {
+    if (query.search === lastSentRef.current.trim()) return;
+    lastSentRef.current = query.search;
     setSearch(query.search);
   }, [query.search]);
 
   useEffect(() => {
     if (search.trim() === query.search.trim()) return;
-    const timer = setTimeout(() => onChange({ search }), SEARCH_DEBOUNCE_MS);
+    const timer = setTimeout(() => {
+      lastSentRef.current = search;
+      onChange({ search });
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [search, query.search, onChange]);
 

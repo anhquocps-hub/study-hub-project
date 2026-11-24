@@ -54,6 +54,14 @@ describe('UserDrawer', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('search=21110782');
   });
 
+  it('ngăn chi tiết mở dạng hộp thoại modal (khóa nền, giữ focus bên trong)', async () => {
+    const showModal = vi.spyOn(HTMLDialogElement.prototype, 'showModal');
+    renderAt('/admin/users?user=u-minh-tuan');
+    const drawer = await screen.findByRole('dialog', { name: 'Hồ sơ Quản trị Chi tiết' });
+    expect(drawer.tagName).toBe('DIALOG');
+    expect(showModal).toHaveBeenCalled();
+  });
+
   it('nút Đóng ngăn đóng ngăn', async () => {
     const user = renderAt('/admin/users?user=u-minh-tuan');
     const drawer = await screen.findByRole('dialog', { name: 'Hồ sơ Quản trị Chi tiết' });

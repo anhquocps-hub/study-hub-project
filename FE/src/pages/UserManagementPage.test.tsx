@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -60,6 +60,26 @@ describe('UserManagementPage', () => {
     expect(bodyRows()).toHaveLength(1);
     expect(screen.getByTestId('location')).toHaveTextContent('search=21110782');
     expect(screen.getByTestId('location')).not.toHaveTextContent('page=2');
+  });
+
+  it('dừng gõ giữa hai từ không làm mất dấu cách', async () => {
+    const user = renderAt();
+    await screen.findByText(/Hiển thị 1 - 10/);
+    const box = screen.getByRole('searchbox', { name: 'Tìm kiếm người dùng' });
+    await user.type(box, 'Minh ');
+    await act(() => new Promise((resolve) => setTimeout(resolve, 500)));
+    await user.type(box, 'Tuấn');
+    expect(box).toHaveValue('Minh Tuấn');
+    expect(await screen.findByRole('row', { name: /Minh Tuấn/ }, AFTER_DEBOUNCE)).toBeInTheDocument();
+  });
+
+  it('bấm vào hàng mở ngăn chi tiết, bấm ô chọn thì không', async () => {
+    const user = renderAt('/admin/users?search=21110782');
+    const row = await screen.findByRole('row', { name: /Minh Tuấn/ });
+    await user.click(within(row).getByRole('checkbox'));
+    expect(screen.getByTestId('location')).not.toHaveTextContent('user=');
+    await user.click(within(row).getByText('Khoa CNTT - CNPM CLC'));
+    expect(screen.getByTestId('location')).toHaveTextContent('user=u-minh-tuan');
   });
 
   it('lọc Đã khóa chỉ hiện tài khoản bị khóa', async () => {

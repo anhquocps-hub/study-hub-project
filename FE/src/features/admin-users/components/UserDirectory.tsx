@@ -165,6 +165,7 @@ export function UserDirectory() {
                   selectedIds={selectedIds}
                   onToggle={toggleOne}
                   onToggleAll={toggleAll}
+                  onOpen={openDetail}
                   renderActions={(user) => (
                     <UserRowActions
                       user={user}
