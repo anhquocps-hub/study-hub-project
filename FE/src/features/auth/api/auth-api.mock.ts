@@ -1,7 +1,7 @@
 /**
  * Mock Auth API, dùng khi VITE_USE_MOCK_API=true.
  * Có cùng tên hàm và kiểu trả về với auth-api.ts nên component không cần biết đang dùng bản nào.
- * Dữ liệu nằm ở src/test/mock-db.ts. Tài khoản demo: demo@unispace.vn / demo1234.
+ * Dữ liệu nằm ở src/test/mock-db.ts. Tài khoản demo: demo@unispace.vn và admin@unispace.vn, mật khẩu demo1234.
  */
 import { MOCK_UNIVERSITIES, mockDb } from '../../../test/mock-db';
 import { ApiError } from '../../../services/http-client';
@@ -12,6 +12,10 @@ export async function login(input: LoginInput): Promise<User> {
   const user = mockDb.findUserByEmail(input.email);
   if (!user || !mockDb.checkPassword(user.id, input.password)) {
     throw new ApiError(401, 'Email hoặc mật khẩu không đúng.');
+  }
+  // Giống BE: chỉ kiểm tra trạng thái sau khi mật khẩu đã đúng.
+  if (mockDb.getAccount(user.id)?.status === 'BANNED') {
+    throw new ApiError(403, 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
   }
   mockDb.session.start(user.id);
   return user;

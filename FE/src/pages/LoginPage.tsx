@@ -21,7 +21,7 @@ export function LoginPage() {
       }
     >
       {isMockApi && (
-        <p className={styles.mockNote}>Chế độ mock: đăng nhập bằng demo@unispace.vn / demo1234</p>
+        <p className={styles.mockNote}>Chế độ mock: demo@unispace.vn (sinh viên) hoặc admin@unispace.vn (quản trị), mật khẩu demo1234</p>
       )}
       <LoginForm />
     </AuthLayout>
