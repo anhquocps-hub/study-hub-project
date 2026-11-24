@@ -4,6 +4,7 @@ import { GuestOnly, RequireAuth } from '../../features/auth';
 import { ChatRoomPage } from '../../pages/ChatRoomPage';
 import { EditProfilePage } from '../../pages/EditProfilePage';
 import { FeedPage } from '../../pages/FeedPage';
+import { ForgotPasswordPage } from '../../pages/ForgotPasswordPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
     ],
   },
   {

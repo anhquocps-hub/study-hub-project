@@ -59,3 +59,9 @@ export async function getMe(): Promise<User | null> {
   const userId = mockDb.session.getUserId();
   return userId ? mockDb.findUserById(userId) : null;
 }
+
+/** Giống BE: luôn thành công, kể cả email không có tài khoản (chống dò email). */
+export async function requestPasswordReset(email: string): Promise<void> {
+  void email;
+  await mockDb.delay(500);
+}

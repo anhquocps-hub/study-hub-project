@@ -38,3 +38,11 @@ export async function getMe(): Promise<User | null> {
     throw error;
   }
 }
+
+/**
+ * Gửi yêu cầu đặt lại mật khẩu. BE luôn trả cùng một thông báo dù email có tồn tại hay không (chống dò email),
+ * nên FE không cần đọc body.
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  await request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+}
