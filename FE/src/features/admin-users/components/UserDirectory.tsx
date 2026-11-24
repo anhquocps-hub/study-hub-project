@@ -12,6 +12,7 @@ import { BulkActionBar } from './BulkActionBar';
 import { DirectoryHeader } from './DirectoryHeader';
 import { DirectoryStatsGrid } from './DirectoryStatsGrid';
 import { Pagination } from './Pagination';
+import { UserDrawer } from './UserDrawer';
 import { UserFilters } from './UserFilters';
 import { UserRowActions } from './UserRowActions';
 import { UserTable } from './UserTable';
@@ -64,7 +65,8 @@ export function UserDirectory() {
   const { query, setQuery } = useUserListQuery();
   const { state, retry } = useUserList(query);
   const { state: statsState } = useDirectoryStats();
-  const [, setParams] = useSearchParams();
+  const [params, setParams] = useSearchParams();
+  const detailUserId = params.get('user');
 
   // Kết quả PATCH gộp vào hàng đang hiển thị (không tải lại cả trang).
   const [patches, setPatches] = useState<Record<string, UserPatchResult>>({});
@@ -102,6 +104,14 @@ export function UserDirectory() {
       return next;
     });
   };
+
+  const closeDetail = useCallback(() => {
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete('user');
+      return next;
+    });
+  }, [setParams]);
 
   const closeDialog = () => {
     setPending(null);
@@ -174,6 +184,8 @@ export function UserDirectory() {
             </>
           ))}
       </section>
+
+      {detailUserId && <UserDrawer key={detailUserId} userId={detailUserId} onClose={closeDetail} />}
 
       {dialog && (
         <ConfirmDialog
