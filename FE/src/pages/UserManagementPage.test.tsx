@@ -28,6 +28,8 @@ function renderAt(path = '/admin/users') {
 const TOTAL = () => mockDb.listAccounts().length;
 const bodyRows = () => within(screen.getByRole('table', { name: 'Danh sách người dùng' })).getAllByRole('row').slice(1);
 const rowOf = (name: RegExp) => screen.getByRole('row', { name });
+/** Ô tìm kiếm chờ 300ms sau phím cuối rồi mới lọc: cho thêm thời gian khi máy chạy test đang bận. */
+const AFTER_DEBOUNCE = { timeout: 3000 };
 
 describe('UserManagementPage', () => {
   beforeEach(() => {
@@ -54,7 +56,7 @@ describe('UserManagementPage', () => {
     expect(await screen.findByText(/Hiển thị 11 - 20/)).toBeInTheDocument();
 
     await user.type(screen.getByRole('searchbox', { name: 'Tìm kiếm người dùng' }), '21110782');
-    expect(await screen.findByRole('row', { name: /Minh Tuấn/ })).toBeInTheDocument();
+    expect(await screen.findByRole('row', { name: /Minh Tuấn/ }, AFTER_DEBOUNCE)).toBeInTheDocument();
     expect(bodyRows()).toHaveLength(1);
     expect(screen.getByTestId('location')).toHaveTextContent('search=21110782');
     expect(screen.getByTestId('location')).not.toHaveTextContent('page=2');
