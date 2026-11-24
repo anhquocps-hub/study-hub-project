@@ -11,6 +11,7 @@ import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
 import { PostDetailPage } from '../../pages/PostDetailPage';
 import { RegisterPage } from '../../pages/RegisterPage';
+import { UserManagementPage } from '../../pages/UserManagementPage';
 import { UserProfilePage } from '../../pages/UserProfilePage';
 
 export const router = createBrowserRouter([
@@ -45,7 +46,7 @@ export const router = createBrowserRouter([
             element: <AdminLayout />,
             children: [
               { path: '/admin', element: <Navigate to="/admin/users" replace /> },
-              { path: '/admin/users', element: <p>Quản lý người dùng</p> },
+              { path: '/admin/users', element: <UserManagementPage /> },
             ],
           },
         ],

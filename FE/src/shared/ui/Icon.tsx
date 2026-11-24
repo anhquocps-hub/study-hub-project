@@ -264,3 +264,90 @@ export function IconX(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconUnlock(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 7.75-1.4" />
+    </Icon>
+  );
+}
+
+export function IconMoreHorizontal(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="5" cy="12" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+    </Icon>
+  );
+}
+
+export function IconSearch(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </Icon>
+  );
+}
+
+export function IconBell(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </Icon>
+  );
+}
+
+export function IconDownload(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3v12m-5-5 5 5 5-5" />
+      <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+    </Icon>
+  );
+}
+
+export function IconUserPlus(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="9" cy="8" r="4" />
+      <path d="M2 21a7 7 0 0 1 14 0M19 8v6m3-3h-6" />
+    </Icon>
+  );
+}
+
+export function IconChevronLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Icon>
+  );
+}
+
+export function IconChevronRight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </Icon>
+  );
+}
+
+export function IconChevronsLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m11 17-5-5 5-5m7 10-5-5 5-5" />
+    </Icon>
+  );
+}
+
+export function IconChevronsRight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
+    </Icon>
+  );
+}
