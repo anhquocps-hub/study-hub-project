@@ -1,6 +1,7 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
+import { AdminLayout } from '../../components/layout/AdminLayout';
 import { AppLayout } from '../../components/layout/AppLayout';
-import { GuestOnly, RequireAuth } from '../../features/auth';
+import { GuestOnly, RequireAdmin, RequireAuth } from '../../features/auth';
 import { ChatRoomPage } from '../../pages/ChatRoomPage';
 import { EditProfilePage } from '../../pages/EditProfilePage';
 import { FeedPage } from '../../pages/FeedPage';
@@ -34,6 +35,19 @@ export const router = createBrowserRouter([
           { path: '/posts/:postId', element: <PostDetailPage /> },
           { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
           { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
+        ],
+      },
+      {
+        // Trang chỉ dành cho ADMIN: người dùng thường thấy trang 403.
+        element: <RequireAdmin />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              { path: '/admin', element: <Navigate to="/admin/users" replace /> },
+              { path: '/admin/users', element: <p>Quản lý người dùng</p> },
+            ],
+          },
         ],
       },
       { path: '/profile/me', element: <MyProfilePage /> },
