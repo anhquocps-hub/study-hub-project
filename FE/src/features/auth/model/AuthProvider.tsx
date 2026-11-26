@@ -19,11 +19,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   // http-client báo hết phiên (refresh thất bại) hoặc tài khoản bị khóa: đăng xuất ở FE và giữ lý do cho trang
-  // Đăng nhập. Chỉ khi đang có người dùng: khách mở trang gặp 401 là bình thường, không cần thông báo.
+  // Đăng nhập.
+  // - 'banned': luôn hiện lý do, kể cả lúc đang khôi phục phiên sau khi tải lại trang.
+  // - 'expired': chỉ khi đang có người dùng; khách mở trang gặp 401 là bình thường, không cần thông báo.
   useEffect(
     () =>
-      onAuthEvent((_event, message) => {
-        if (!userRef.current) return;
+      onAuthEvent((event, message) => {
+        if (event === 'expired' && !userRef.current) return;
         setSessionNotice(message);
         setUser(null);
       }),

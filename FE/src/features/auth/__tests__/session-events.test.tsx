@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoginPage } from '../../../pages/LoginPage';
 import { request } from '../../../services/http-client';
 import { mockDb } from '../../../test/mock-db';
+import * as mockAuthApi from '../api/auth-api.mock';
 import { AuthProvider, GuestOnly, RequireAuth } from '..';
 
 function renderApp() {
@@ -54,6 +55,18 @@ describe('AuthProvider — hết phiên / bị khóa giữa chừng', () => {
 
     expect(await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' })).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  });
+
+  it('tải lại trang khi tài khoản đã bị khóa thì trang đăng nhập hiện lý do', async () => {
+    // Khôi phục phiên đi qua http-client giống bản thật; BE trả 403 vì tài khoản bị khóa.
+    vi.spyOn(mockAuthApi, 'getMe').mockImplementation(async () => {
+      await request('/auth/me');
+      return null;
+    });
+    stubFetch(403, 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
+    renderApp();
+    expect(await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' })).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
   });
 
   it('khách chưa đăng nhập gặp 401 thì không hiện thông báo hết phiên', async () => {
