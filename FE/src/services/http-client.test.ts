@@ -98,3 +98,33 @@ describe('request — tài khoản bị khóa', () => {
     off();
   });
 });
+
+describe('request — refresh gặp lỗi tạm thời', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('BE lỗi 500 khi refresh thì không đăng xuất, báo lỗi máy chủ', async () => {
+    stubServer({ refreshStatus: 500 });
+    const listener = vi.fn();
+    const off = onAuthEvent(listener);
+    await expect(request('/users')).rejects.toMatchObject({ status: 500 });
+    expect(listener).not.toHaveBeenCalled();
+    off();
+  });
+
+  it('mất mạng khi refresh thì không đăng xuất, báo lỗi kết nối', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        if (new URL(url).pathname === '/auth/refresh') throw new TypeError('Failed to fetch');
+        return json(401, { message: 'Vui lòng đăng nhập để tiếp tục.' });
+      }),
+    );
+    const listener = vi.fn();
+    const off = onAuthEvent(listener);
+    await expect(request('/users')).rejects.toMatchObject({ status: 0 });
+    expect(listener).not.toHaveBeenCalled();
+    off();
+  });
+});

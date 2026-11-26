@@ -16,6 +16,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const userRef = useRef<User | null>(null);
   useEffect(() => {
     userRef.current = user;
+    // Đã có người đăng nhập (đăng nhập, đăng ký, khôi phục phiên): lý do bị đăng xuất lần trước không còn đúng.
+    if (user) setSessionNotice(null);
   }, [user]);
 
   // http-client báo hết phiên (refresh thất bại) hoặc tài khoản bị khóa: đăng xuất ở FE và giữ lý do cho trang

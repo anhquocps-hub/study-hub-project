@@ -77,7 +77,15 @@ const NO_REFRESH_PATHS = [
 /** BE trả 403 với thông báo bắt đầu bằng câu này khi tài khoản bị khóa (middleware, login, refresh). */
 const BANNED_PREFIX = 'Tài khoản của bạn đã bị khóa';
 
-type RefreshResult = { ok: true } | { ok: false; bannedMessage: string | null };
+/**
+ * Kết quả refresh:
+ * - expired: refresh token hết hạn/không hợp lệ (4xx) → phải đăng nhập lại.
+ * - banned: tài khoản bị khóa.
+ * - unavailable: lỗi mạng hoặc máy chủ (5xx) → lỗi tạm thời, KHÔNG đăng xuất người dùng.
+ */
+type RefreshResult =
+  | { ok: true }
+  | { ok: false; kind: 'expired' | 'banned' | 'unavailable'; error: ApiError };
 
 let refreshInFlight: Promise<RefreshResult> | null = null;
 
@@ -94,9 +102,14 @@ function refreshSession(): Promise<RefreshResult> {
     .then(async (response): Promise<RefreshResult> => {
       if (response.ok) return { ok: true };
       const error = await toApiError(response);
-      return { ok: false, bannedMessage: isBannedError(error) ? error.message : null };
+      if (isBannedError(error)) return { ok: false, kind: 'banned', error };
+      return { ok: false, kind: response.status >= 500 ? 'unavailable' : 'expired', error };
     })
-    .catch((): RefreshResult => ({ ok: false, bannedMessage: null }))
+    .catch((error: unknown): RefreshResult => ({
+      ok: false,
+      kind: 'unavailable',
+      error: new ApiError(0, error instanceof DOMException && error.name === 'TimeoutError' ? TIMEOUT_ERROR : NETWORK_ERROR),
+    }))
     .finally(() => {
       refreshInFlight = null;
     });
@@ -141,9 +154,12 @@ export async function request(path: string, init: RequestInit = {}): Promise<unk
     const refreshed = await refreshSession();
     if (refreshed.ok) {
       response = await send(path, init);
+    } else if (refreshed.kind === 'unavailable') {
+      // Không xin được token mới vì mạng/máy chủ: giữ người dùng đăng nhập, báo lỗi để họ thử lại.
+      throw refreshed.error;
     } else {
       const error = await toApiError(response);
-      if (refreshed.bannedMessage) emitAuthEvent('banned', refreshed.bannedMessage);
+      if (refreshed.kind === 'banned') emitAuthEvent('banned', refreshed.error.message);
       else emitAuthEvent('expired', SESSION_EXPIRED_MESSAGE);
       throw error;
     }

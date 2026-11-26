@@ -6,7 +6,38 @@ import { LoginPage } from '../../../pages/LoginPage';
 import { request } from '../../../services/http-client';
 import { mockDb } from '../../../test/mock-db';
 import * as mockAuthApi from '../api/auth-api.mock';
-import { AuthProvider, GuestOnly, RequireAuth } from '..';
+import { AuthProvider, GuestOnly, RequireAuth, useAuth } from '..';
+
+function RegisterHarness() {
+  const { register } = useAuth();
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        void register({
+          fullName: 'Tài Khoản Mới',
+          email: 'moi@unispace.vn',
+          universityId: 'hcmute',
+          studentId: '',
+          password: 'matkhau123',
+          confirmPassword: 'matkhau123',
+          acceptTerms: true,
+        })
+      }
+    >
+      Đăng ký thử
+    </button>
+  );
+}
+
+function LogoutHarness() {
+  const { logout } = useAuth();
+  return (
+    <button type="button" onClick={() => void logout()}>
+      Đăng xuất thử
+    </button>
+  );
+}
 
 function renderApp() {
   render(
@@ -15,9 +46,11 @@ function renderApp() {
         <Routes>
           <Route element={<GuestOnly />}>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterHarness />} />
           </Route>
           <Route element={<RequireAuth />}>
             <Route path="/" element={<p>Trang bảng tin</p>} />
+            <Route path="/profile/edit" element={<LogoutHarness />} />
           </Route>
         </Routes>
       </MemoryRouter>
@@ -62,6 +95,22 @@ describe('AuthProvider — hết phiên / bị khóa giữa chừng', () => {
 
     expect(await screen.findByText('Email hoặc mật khẩu không đúng.')).toBeInTheDocument();
     expect(screen.getAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('đăng ký tài khoản khác rồi đăng xuất thì không còn thông báo cũ', async () => {
+    renderApp();
+    await screen.findByText('Trang bảng tin');
+    stubFetch(403, 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
+    await request('/users').catch(() => undefined);
+    await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('link', { name: /Đăng ký ngay/ }));
+    await user.click(await screen.findByRole('button', { name: 'Đăng ký thử' }));
+    await user.click(await screen.findByRole('button', { name: 'Đăng xuất thử' }));
+
+    expect(await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('hết phiên thì về trang đăng nhập và báo phiên đã hết hạn', async () => {
