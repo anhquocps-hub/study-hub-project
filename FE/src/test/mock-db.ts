@@ -199,6 +199,36 @@ export const mockDb = {
     return toUser(account);
   },
 
+  /**
+   * Đảm bảo có tài khoản mock cho một người dùng đến từ BE thật (khi auth gọi API thật nhưng bảng tin/chat
+   * vẫn mock). Tài khoản này không có mật khẩu mock.
+   */
+  ensureAccount(user: User) {
+    const accounts = load();
+    if (accounts.some((item) => item.profile.userId === user.id)) return;
+    accounts.push({
+      email: user.email,
+      role: user.role,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      profile: {
+        userId: user.id,
+        fullName: user.fullName,
+        avatarUrl: null,
+        studentId: null,
+        university: null,
+        major: null,
+        cohort: null,
+        bio: '',
+        skills: [],
+        interests: [],
+        links: { github: null, linkedin: null, portfolio: null },
+        projects: [],
+      },
+    });
+    save(accounts);
+  },
+
   listAccounts(): StoredAccount[] {
     return load();
   },
