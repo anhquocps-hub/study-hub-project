@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoginPage } from '../../../pages/LoginPage';
@@ -45,6 +46,22 @@ describe('AuthProvider — hết phiên / bị khóa giữa chừng', () => {
 
     expect(await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' })).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
+  });
+
+  it('gửi form đăng nhập lần nữa thì bỏ thông báo cũ, chỉ còn lỗi mới', async () => {
+    renderApp();
+    await screen.findByText('Trang bảng tin');
+    stubFetch(403, 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
+    await request('/users').catch(() => undefined);
+    await screen.findByRole('heading', { name: 'Đăng nhập tài khoản' });
+
+    const user = userEvent.setup();
+    await user.type(screen.getByRole('textbox', { name: /Email/ }), 'demo@unispace.vn');
+    await user.type(screen.getByLabelText(/Mật khẩu/), 'sai-mat-khau');
+    await user.click(screen.getByRole('button', { name: 'Đăng nhập vào UniSpace' }));
+
+    expect(await screen.findByText('Email hoặc mật khẩu không đúng.')).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
   });
 
   it('hết phiên thì về trang đăng nhập và báo phiên đã hết hạn', async () => {

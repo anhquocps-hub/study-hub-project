@@ -51,8 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (input: LoginInput) => {
-    setUser(await authApi.login(input));
+    // Người dùng đã đọc lý do bị đăng xuất và thử lại: bỏ thông báo cũ, chỉ hiện kết quả lần này.
     setSessionNotice(null);
+    setUser(await authApi.login(input));
   }, []);
 
   const register = useCallback(async (input: RegisterInput) => {
