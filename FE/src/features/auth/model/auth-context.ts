@@ -11,6 +11,8 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   /** Hỏi lại BE thông tin người dùng, ví dụ sau khi lưu hồ sơ để cập nhật profileCompleted. */
   refreshUser: () => Promise<void>;
+  /** Lý do bị đăng xuất ngoài ý muốn (hết phiên, bị khóa) để trang Đăng nhập hiển thị; null nếu không có. */
+  sessionNotice: string | null;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

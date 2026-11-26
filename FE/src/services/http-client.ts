@@ -74,20 +74,29 @@ const NO_REFRESH_PATHS = [
   '/auth/reset-password',
 ];
 
-let refreshInFlight: Promise<boolean> | null = null;
+/** BE trả 403 với thông báo bắt đầu bằng câu này khi tài khoản bị khóa (middleware, login, refresh). */
+const BANNED_PREFIX = 'Tài khoản của bạn đã bị khóa';
+
+type RefreshResult = { ok: true } | { ok: false; bannedMessage: string | null };
+
+let refreshInFlight: Promise<RefreshResult> | null = null;
 
 /**
  * Xin access token mới bằng refresh token (cookie). Nhiều request cùng gặp 401 thì dùng chung MỘT lần refresh:
  * BE xoay vòng refresh token (mỗi token dùng 1 lần), gọi song song sẽ làm các lần sau bị từ chối.
  */
-function refreshSession(): Promise<boolean> {
+function refreshSession(): Promise<RefreshResult> {
   refreshInFlight ??= fetch(`${API_BASE_URL}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
-    .then((response) => response.ok)
-    .catch(() => false)
+    .then(async (response): Promise<RefreshResult> => {
+      if (response.ok) return { ok: true };
+      const error = await toApiError(response);
+      return { ok: false, bannedMessage: isBannedError(error) ? error.message : null };
+    })
+    .catch((): RefreshResult => ({ ok: false, bannedMessage: null }))
     .finally(() => {
       refreshInFlight = null;
     });
@@ -112,6 +121,10 @@ async function send(path: string, init: RequestInit): Promise<Response> {
   }
 }
 
+function isBannedError(error: ApiError) {
+  return error.status === 403 && error.message.startsWith(BANNED_PREFIX);
+}
+
 async function toApiError(response: Response): Promise<ApiError> {
   const body: unknown = await response.json().catch(() => null);
   const { message, fieldErrors } = parseErrorBody(body);
@@ -121,19 +134,28 @@ async function toApiError(response: Response): Promise<ApiError> {
 export async function request(path: string, init: RequestInit = {}): Promise<unknown> {
   let response = await send(path, init);
 
+  const isAuthPath = NO_REFRESH_PATHS.includes(path.split('?')[0]);
+
   // Access token hết hạn (15 phút): refresh một lần rồi gửi lại.
-  if (response.status === 401 && !NO_REFRESH_PATHS.includes(path.split('?')[0])) {
-    if (await refreshSession()) {
+  if (response.status === 401 && !isAuthPath) {
+    const refreshed = await refreshSession();
+    if (refreshed.ok) {
       response = await send(path, init);
     } else {
       const error = await toApiError(response);
-      emitAuthEvent('expired', SESSION_EXPIRED_MESSAGE);
+      if (refreshed.bannedMessage) emitAuthEvent('banned', refreshed.bannedMessage);
+      else emitAuthEvent('expired', SESSION_EXPIRED_MESSAGE);
       throw error;
     }
   }
 
   if (response.status === 204) return null;
-  if (!response.ok) throw await toApiError(response);
+  if (!response.ok) {
+    const error = await toApiError(response);
+    // Bị khóa giữa phiên: đăng xuất ở FE. (Ở /auth/login thì form tự hiện lỗi, không cần sự kiện.)
+    if (!isAuthPath && isBannedError(error)) emitAuthEvent('banned', error.message);
+    throw error;
+  }
   return response.json().catch(() => null);
 }
 

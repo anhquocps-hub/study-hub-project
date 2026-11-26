@@ -58,3 +58,43 @@ describe('request — tự refresh khi 401', () => {
     expect(refreshCalls()).toBe(0);
   });
 });
+
+describe('request — tài khoản bị khóa', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('403 tài khoản bị khóa thì phát sự kiện banned kèm thông báo của BE', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(403, { message: 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.' })));
+    const listener = vi.fn();
+    const off = onAuthEvent(listener);
+    await expect(request('/users')).rejects.toMatchObject({ status: 403 });
+    expect(listener).toHaveBeenCalledWith('banned', 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn.');
+    off();
+  });
+
+  it('refresh bị từ chối vì tài khoản bị khóa thì báo banned, không phải hết phiên', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        new URL(url).pathname === '/auth/refresh'
+          ? json(403, { message: 'Tài khoản của bạn đã bị khóa.' })
+          : json(401, { message: 'Vui lòng đăng nhập để tiếp tục.' }),
+      ),
+    );
+    const listener = vi.fn();
+    const off = onAuthEvent(listener);
+    await expect(request('/users')).rejects.toMatchObject({ status: 401 });
+    expect(listener).toHaveBeenCalledWith('banned', 'Tài khoản của bạn đã bị khóa.');
+    off();
+  });
+
+  it('403 không có quyền thì không phát sự kiện', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(403, { message: 'Bạn không có quyền thực hiện thao tác này.' })));
+    const listener = vi.fn();
+    const off = onAuthEvent(listener);
+    await expect(request('/users')).rejects.toMatchObject({ status: 403 });
+    expect(listener).not.toHaveBeenCalled();
+    off();
+  });
+});

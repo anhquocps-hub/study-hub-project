@@ -1,12 +1,13 @@
 import { Link } from 'react-router';
-import { AuthLayout, LoginForm } from '../features/auth';
+import { AuthLayout, LoginForm, useAuth } from '../features/auth';
 import { isMockApi } from '../shared/lib/api-mode';
-import { IconArrowRight, IconShieldCheck } from '../shared/ui';
+import { Alert, IconArrowRight, IconShieldCheck } from '../shared/ui';
 import styles from './AuthPage.module.css';
 
 const showMockNote = isMockApi('auth');
 
 export function LoginPage() {
+  const { sessionNotice } = useAuth();
   return (
     <AuthLayout
       eyebrow="Cổng truy cập sinh viên"
@@ -25,6 +26,7 @@ export function LoginPage() {
         </>
       }
     >
+      {sessionNotice && <Alert>{sessionNotice}</Alert>}
       {showMockNote && (
         <p className={styles.mockNote}>Chế độ mock: demo@unispace.vn (sinh viên) hoặc admin@unispace.vn (quản trị), mật khẩu demo1234</p>
       )}
