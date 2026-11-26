@@ -44,13 +44,61 @@ function parseErrorBody(body: unknown): { message: string; fieldErrors: Record<s
   };
 }
 
-export async function request(path: string, init: RequestInit = {}): Promise<unknown> {
+// ——— Sự kiện phiên đăng nhập (AuthProvider lắng nghe) ———
+
+export type AuthEvent = 'expired' | 'banned';
+type AuthEventListener = (event: AuthEvent, message: string) => void;
+const authListeners = new Set<AuthEventListener>();
+
+/** Đăng ký nghe sự kiện hết phiên / bị khóa; trả về hàm hủy đăng ký. */
+export function onAuthEvent(listener: AuthEventListener): () => void {
+  authListeners.add(listener);
+  return () => {
+    authListeners.delete(listener);
+  };
+}
+
+function emitAuthEvent(event: AuthEvent, message: string) {
+  authListeners.forEach((listener) => listener(event, message));
+}
+
+export const SESSION_EXPIRED_MESSAGE = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+
+/** Các API xác thực: 401 ở đây là lỗi thật (sai mật khẩu, refresh token hỏng…), không refresh rồi thử lại. */
+const NO_REFRESH_PATHS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/logout',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+/**
+ * Xin access token mới bằng refresh token (cookie). Nhiều request cùng gặp 401 thì dùng chung MỘT lần refresh:
+ * BE xoay vòng refresh token (mỗi token dùng 1 lần), gọi song song sẽ làm các lần sau bị từ chối.
+ */
+function refreshSession(): Promise<boolean> {
+  refreshInFlight ??= fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  })
+    .then((response) => response.ok)
+    .catch(() => false)
+    .finally(() => {
+      refreshInFlight = null;
+    });
+  return refreshInFlight;
+}
+
+async function send(path: string, init: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
   const signal = init.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
-
-  let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    return await fetch(`${API_BASE_URL}${path}`, {
       ...init,
       signal,
       credentials: 'include',
@@ -62,14 +110,31 @@ export async function request(path: string, init: RequestInit = {}): Promise<unk
     if (timeoutSignal.aborted) throw new ApiError(0, TIMEOUT_ERROR);
     throw new ApiError(0, NETWORK_ERROR);
   }
+}
+
+async function toApiError(response: Response): Promise<ApiError> {
+  const body: unknown = await response.json().catch(() => null);
+  const { message, fieldErrors } = parseErrorBody(body);
+  return new ApiError(response.status, message, fieldErrors);
+}
+
+export async function request(path: string, init: RequestInit = {}): Promise<unknown> {
+  let response = await send(path, init);
+
+  // Access token hết hạn (15 phút): refresh một lần rồi gửi lại.
+  if (response.status === 401 && !NO_REFRESH_PATHS.includes(path.split('?')[0])) {
+    if (await refreshSession()) {
+      response = await send(path, init);
+    } else {
+      const error = await toApiError(response);
+      emitAuthEvent('expired', SESSION_EXPIRED_MESSAGE);
+      throw error;
+    }
+  }
 
   if (response.status === 204) return null;
-  const body: unknown = await response.json().catch(() => null);
-  if (!response.ok) {
-    const { message, fieldErrors } = parseErrorBody(body);
-    throw new ApiError(response.status, message, fieldErrors);
-  }
-  return body;
+  if (!response.ok) throw await toApiError(response);
+  return response.json().catch(() => null);
 }
 
 /** Thông báo lỗi an toàn để hiện cho người dùng: chỉ dùng message của ApiError, còn lại là lỗi chung. */
