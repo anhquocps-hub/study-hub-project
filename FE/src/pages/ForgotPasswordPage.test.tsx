@@ -74,6 +74,7 @@ describe('ForgotPasswordPage', () => {
     const user = renderPage();
     await goToOtpStep(user);
     expect(screen.getByText('05:00')).toBeInTheDocument();
+    expect(screen.getByText(/Mã sẽ hết hiệu lực trong:/)).toBeInTheDocument();
     act(() => {
       vi.advanceTimersByTime(300_000);
     });

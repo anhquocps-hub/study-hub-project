@@ -195,7 +195,7 @@ function OtpStep({ email, onChangeEmail }: { email: string; onChangeEmail: () =>
 
         <div className={styles.timer}>
           <p className={styles.clock}>
-            Mã có hiệu lực trong: <span className={styles.clockValue}>{formatClock(validity)}</span>
+            Mã sẽ hết hiệu lực trong: <span className={styles.clockValue}>{formatClock(validity)}</span>
           </p>
           <p className={styles.resendRow}>
             <button
