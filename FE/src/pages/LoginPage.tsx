@@ -1,9 +1,10 @@
 import { Link } from 'react-router';
 import { AuthLayout, LoginForm } from '../features/auth';
+import { isMockApi } from '../shared/lib/api-mode';
 import { IconArrowRight, IconShieldCheck } from '../shared/ui';
 import styles from './AuthPage.module.css';
 
-const isMockApi = import.meta.env.VITE_USE_MOCK_API === 'true';
+const showMockNote = isMockApi('auth');
 
 export function LoginPage() {
   return (
@@ -24,7 +25,7 @@ export function LoginPage() {
         </>
       }
     >
-      {isMockApi && (
+      {showMockNote && (
         <p className={styles.mockNote}>Chế độ mock: demo@unispace.vn (sinh viên) hoặc admin@unispace.vn (quản trị), mật khẩu demo1234</p>
       )}
       <LoginForm />
