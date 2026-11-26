@@ -1,0 +1,37 @@
+/* 6 ô OTP (Figma 38:2080): 56×64, cách nhau 12px */
+.group {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 56px));
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.digit {
+  width: 100%;
+  height: 64px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: var(--ui-chip-high);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  caret-color: var(--ui-accent);
+}
+
+.digit:focus {
+  outline: none;
+  border-color: var(--ui-accent-strong);
+  background: var(--ui-card);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
+}
+
+.digit:disabled {
+  opacity: 0.6;
+}
+
+.invalid {
+  border-color: var(--color-danger);
+}

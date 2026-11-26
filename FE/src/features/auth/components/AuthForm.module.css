@@ -55,3 +55,101 @@
 .retry:hover {
   text-decoration: underline;
 }
+
+/* ——— Đăng nhập (Figma 38:1459) ——— */
+.sso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--ui-card);
+  color: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.ssoIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  background: rgba(76, 215, 246, 0.1);
+  color: var(--ui-accent);
+}
+
+.ssoText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.ssoTitle {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ssoSub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.ssoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+  padding: 2px var(--space-2);
+  border-radius: 2px;
+  background: rgba(27, 189, 133, 0.2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 15px;
+  color: #4edea3;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ui-chip-high);
+}
+
+.labelHint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 16px;
+  color: rgba(76, 215, 246, 0.7);
+}
+
+.forgotLink {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--ui-accent);
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}

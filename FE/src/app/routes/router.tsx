@@ -1,14 +1,17 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
+import { AdminLayout } from '../../components/layout/AdminLayout';
 import { AppLayout } from '../../components/layout/AppLayout';
-import { GuestOnly, RequireAuth } from '../../features/auth';
+import { GuestOnly, RequireAdmin, RequireAuth } from '../../features/auth';
 import { ChatRoomPage } from '../../pages/ChatRoomPage';
 import { EditProfilePage } from '../../pages/EditProfilePage';
 import { FeedPage } from '../../pages/FeedPage';
+import { ForgotPasswordPage } from '../../pages/ForgotPasswordPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MyProfilePage } from '../../pages/MyProfilePage';
 import { NotFoundPage } from '../../pages/NotFoundPage';
 import { PostDetailPage } from '../../pages/PostDetailPage';
 import { RegisterPage } from '../../pages/RegisterPage';
+import { UserManagementPage } from '../../pages/UserManagementPage';
 import { UserProfilePage } from '../../pages/UserProfilePage';
 
 export const router = createBrowserRouter([
@@ -18,6 +21,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
     ],
   },
   {
@@ -32,6 +36,19 @@ export const router = createBrowserRouter([
           { path: '/posts/:postId', element: <PostDetailPage /> },
           { path: '/spaces/:roomId', element: <ChatRoomPage kind="SPACE" /> },
           { path: '/communities/:roomId', element: <ChatRoomPage kind="COMMUNITY" /> },
+        ],
+      },
+      {
+        // Trang chỉ dành cho ADMIN: người dùng thường thấy trang 403.
+        element: <RequireAdmin />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              { path: '/admin', element: <Navigate to="/admin/users" replace /> },
+              { path: '/admin/users', element: <UserManagementPage /> },
+            ],
+          },
         ],
       },
       { path: '/profile/me', element: <MyProfilePage /> },

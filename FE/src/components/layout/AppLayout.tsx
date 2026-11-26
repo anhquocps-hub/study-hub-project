@@ -18,7 +18,7 @@ import iconStudy from '../../assets/figma/nav-study.svg';
 import { useAuth } from '../../features/auth';
 import { useMyRooms, type RoomSummary } from '../../features/chat';
 import { useProfile } from '../../features/profiles';
-import { Avatar } from '../../shared/ui';
+import { Avatar, IconShieldCheck } from '../../shared/ui';
 import styles from './AppLayout.module.css';
 
 function RoomLink({ room }: { room: RoomSummary }) {
@@ -39,6 +39,7 @@ function RoomLink({ room }: { room: RoomSummary }) {
 
 function Sidebar() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { state } = useMyRooms();
   const [communitiesOpen, setCommunitiesOpen] = useState(true);
   const rooms = state.status === 'success' ? state.data : [];
@@ -60,6 +61,12 @@ function Sidebar() {
           <img src={iconExplore} alt="" />
           Khám phá &amp; Tìm kiếm
         </span>
+        {user?.role === 'ADMIN' && (
+          <NavLink to="/admin/users" className={styles.link}>
+            <IconShieldCheck size={16} />
+            Quản trị hệ thống
+          </NavLink>
+        )}
 
         <button
           type="button"
@@ -117,7 +124,8 @@ function Sidebar() {
   );
 }
 
-function Header() {
+/** Header dùng chung cho khung sinh viên và khung Admin. */
+export function AppHeader() {
   const { user, logout } = useAuth();
   const { state } = useProfile('me');
   const navigate = useNavigate();
@@ -184,7 +192,7 @@ function Header() {
 export function AppLayout() {
   return (
     <div className={styles.shell}>
-      <Header />
+      <AppHeader />
       <Sidebar />
       <main className={styles.main}>
         <Outlet />

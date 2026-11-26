@@ -25,6 +25,10 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
+/** Bước 1 của Quên mật khẩu: email nhận mã OTP. */
+export const forgotPasswordSchema = z.object({ email: emailField });
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
 /**
  * Quy tắc mật khẩu bắt buộc: 8–72 ký tự, có chữ và số (72 là giới hạn của bcrypt).
  * Chữ in hoa và ký tự đặc biệt không bắt buộc; thanh độ mạnh ở form đăng ký khuyến khích thêm.

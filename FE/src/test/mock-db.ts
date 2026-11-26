@@ -9,6 +9,7 @@
 import type { Major, University } from '../features/academic';
 import type { User } from '../features/auth';
 import type { Profile } from '../features/profiles';
+import { MOCK_DIRECTORY_ACCOUNTS } from './mock-directory';
 
 const DB_KEY = 'unispace-mock-db';
 const SESSION_KEY = 'unispace-mock-session';
@@ -43,16 +44,25 @@ export const MOCK_MAJORS: Record<string, Major[]> = {
   ],
 };
 
-interface StoredAccount {
+export interface StoredAccount {
   email: string;
   role: User['role'];
+  /** Trạng thái giống BE: BANNED thì không đăng nhập được. */
+  status: 'ACTIVE' | 'BANNED';
+  /** Ngày tạo tài khoản (ISO). */
+  createdAt: string;
   profile: Profile;
 }
 
-const SEED: StoredAccount[] = [
+const DEFAULT_CREATED_AT = '2024-09-01T00:00:00.000Z';
+
+/** Tài khoản đăng nhập được (mật khẩu demo1234). */
+const LOGIN_SEED: StoredAccount[] = [
   {
     email: 'demo@unispace.vn',
     role: 'USER',
+    status: 'ACTIVE',
+    createdAt: '2024-09-05T02:30:00.000Z',
     profile: {
       userId: 'u-demo',
       fullName: 'Sinh viên Demo',
@@ -76,6 +86,8 @@ const SEED: StoredAccount[] = [
   {
     email: 'yennhi@unispace.vn',
     role: 'USER',
+    status: 'ACTIVE',
+    createdAt: '2024-09-12T08:10:00.000Z',
     profile: {
       userId: 'u-khac',
       fullName: 'Lê Hoàng Yến Nhi',
@@ -94,15 +106,44 @@ const SEED: StoredAccount[] = [
       projects: [],
     },
   },
+  {
+    email: 'admin@unispace.vn',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    createdAt: '2024-08-01T00:00:00.000Z',
+    profile: {
+      userId: 'u-admin',
+      fullName: 'Quản trị viên UniSpace',
+      avatarUrl: null,
+      studentId: null,
+      university: { id: 'hcmute', name: 'ĐH Sư phạm Kỹ thuật TP.HCM (HCMUTE)' },
+      major: { id: 'se', name: 'Kỹ thuật phần mềm' },
+      cohort: null,
+      bio: '',
+      skills: [],
+      interests: [],
+      links: { github: null, linkedin: null, portfolio: null },
+      projects: [],
+    },
+  },
 ];
 
+const SEED: StoredAccount[] = [...LOGIN_SEED, ...MOCK_DIRECTORY_ACCOUNTS];
+
 // Mật khẩu: chỉ trong bộ nhớ (xem ghi chú đầu file)
-const passwords = new Map<string, string>(SEED.map((account) => [account.profile.userId, MOCK_DEMO_PASSWORD]));
+const passwords = new Map<string, string>(LOGIN_SEED.map((account) => [account.profile.userId, MOCK_DEMO_PASSWORD]));
 
 function load(): StoredAccount[] {
   try {
     const raw = sessionStorage.getItem(DB_KEY);
-    if (raw) return JSON.parse(raw) as StoredAccount[];
+    if (raw) {
+      // Dữ liệu lưu từ phiên bản cũ có thể thiếu status/createdAt: điền mặc định.
+      return (JSON.parse(raw) as Partial<StoredAccount>[]).map((account) => ({
+        ...account,
+        status: account.status ?? 'ACTIVE',
+        createdAt: account.createdAt ?? DEFAULT_CREATED_AT,
+      })) as StoredAccount[];
+    }
   } catch {
     // dữ liệu hỏng: dùng lại dữ liệu mẫu
   }
@@ -145,11 +186,64 @@ export const mockDb = {
 
   createAccount(input: { email: string; password: string; profile: Profile }): User {
     const accounts = load();
-    const account: StoredAccount = { email: input.email, role: 'USER', profile: input.profile };
+    const account: StoredAccount = {
+      email: input.email,
+      role: 'USER',
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      profile: input.profile,
+    };
     accounts.push(account);
     save(accounts);
     passwords.set(input.profile.userId, input.password);
     return toUser(account);
+  },
+
+  /**
+   * Đảm bảo có tài khoản mock cho một người dùng đến từ BE thật (khi auth gọi API thật nhưng bảng tin/chat
+   * vẫn mock). Tài khoản này không có mật khẩu mock.
+   */
+  ensureAccount(user: User) {
+    const accounts = load();
+    if (accounts.some((item) => item.profile.userId === user.id)) return;
+    accounts.push({
+      email: user.email,
+      role: user.role,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      profile: {
+        userId: user.id,
+        fullName: user.fullName,
+        avatarUrl: null,
+        studentId: null,
+        university: null,
+        major: null,
+        cohort: null,
+        bio: '',
+        skills: [],
+        interests: [],
+        links: { github: null, linkedin: null, portfolio: null },
+        projects: [],
+      },
+    });
+    save(accounts);
+  },
+
+  listAccounts(): StoredAccount[] {
+    return load();
+  },
+
+  getAccount(userId: string): StoredAccount | null {
+    return load().find((item) => item.profile.userId === userId) ?? null;
+  },
+
+  updateAccount(userId: string, patch: Partial<Pick<StoredAccount, 'role' | 'status'>>): StoredAccount | null {
+    const accounts = load();
+    const account = accounts.find((item) => item.profile.userId === userId);
+    if (!account) return null;
+    Object.assign(account, patch);
+    save(accounts);
+    return account;
   },
 
   getProfile(userId: string): Profile | null {

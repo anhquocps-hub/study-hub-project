@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { onAuthEvent } from '../../../services/http-client';
 import { authApi } from '../api';
 import { AuthContext } from './auth-context';
 import type { LoginInput, RegisterInput, User } from './auth-schemas';
@@ -11,6 +12,27 @@ import type { LoginInput, RegisterInput, User } from './auth-schemas';
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
+  const [sessionNotice, setSessionNotice] = useState<string | null>(null);
+  const userRef = useRef<User | null>(null);
+  useEffect(() => {
+    userRef.current = user;
+    // Đã có người đăng nhập (đăng nhập, đăng ký, khôi phục phiên): lý do bị đăng xuất lần trước không còn đúng.
+    if (user) setSessionNotice(null);
+  }, [user]);
+
+  // http-client báo hết phiên (refresh thất bại) hoặc tài khoản bị khóa: đăng xuất ở FE và giữ lý do cho trang
+  // Đăng nhập.
+  // - 'banned': luôn hiện lý do, kể cả lúc đang khôi phục phiên sau khi tải lại trang.
+  // - 'expired': chỉ khi đang có người dùng; khách mở trang gặp 401 là bình thường, không cần thông báo.
+  useEffect(
+    () =>
+      onAuthEvent((event, message) => {
+        if (event === 'expired' && !userRef.current) return;
+        setSessionNotice(message);
+        setUser(null);
+      }),
+    [],
+  );
 
   useEffect(() => {
     let isActive = true; // tránh cập nhật state nếu component đã bị gỡ trước khi getMe() trả về
@@ -31,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (input: LoginInput) => {
+    // Người dùng đã đọc lý do bị đăng xuất và thử lại: bỏ thông báo cũ, chỉ hiện kết quả lần này.
+    setSessionNotice(null);
     setUser(await authApi.login(input));
   }, []);
 
@@ -48,8 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, isRestoring, login, register, logout, refreshUser }),
-    [user, isRestoring, login, register, logout, refreshUser],
+    () => ({ user, isRestoring, login, register, logout, refreshUser, sessionNotice }),
+    [user, isRestoring, login, register, logout, refreshUser, sessionNotice],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

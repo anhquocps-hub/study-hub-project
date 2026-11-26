@@ -1,0 +1,50 @@
+/* Thanh điều hướng quản trị (Figma 33:819) — dùng chung khung với AppLayout.module.css */
+.adminSection {
+  justify-content: flex-start;
+  gap: 6px;
+  padding-top: 16px;
+  color: #ffb4ab;
+}
+
+.coreTag {
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: #93000a;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  color: #ffdad6;
+}
+
+.item {
+  justify-content: space-between;
+}
+
+.itemActive,
+.itemActive:hover {
+  border: 1px solid var(--ui-accent);
+  background: #1c2b3c;
+  font-weight: 600;
+  color: var(--ui-accent);
+}
+
+.badge {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.green {
+  background: rgba(27, 189, 133, 0.2);
+  color: #4edea3;
+}
+
+.red {
+  border-radius: 12px;
+  background: #ffb4ab;
+  color: #690005;
+}
