@@ -1,6 +1,6 @@
 import { Role, UserStatus } from '@prisma/client';
 import { prisma } from '../db/client.js';
-import { NotFoundError } from '../utils/errors.js';
+import { BadRequestError, NotFoundError } from '../utils/errors.js';
 
 export interface UserQueryOptions {
   page?: number;
@@ -90,7 +90,11 @@ export class UserService {
     return user;
   }
 
-  static async updateUserStatus(userId: string, status: UserStatus) {
+  static async updateUserStatus(userId: string, status: UserStatus, actorId: string) {
+    if (userId === actorId && status !== UserStatus.ACTIVE) {
+      throw new BadRequestError('Không thể tự khóa tài khoản của chính mình.');
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundError('Không tìm thấy người dùng.');
@@ -103,7 +107,11 @@ export class UserService {
     });
   }
 
-  static async updateUserRole(userId: string, role: Role) {
+  static async updateUserRole(userId: string, role: Role, actorId: string) {
+    if (userId === actorId && role !== Role.ADMIN) {
+      throw new BadRequestError('Không thể tự gỡ quyền quản trị viên của chính mình.');
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundError('Không tìm thấy người dùng.');

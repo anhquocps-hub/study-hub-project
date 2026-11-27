@@ -44,3 +44,10 @@ export class ConflictError extends AppError {
     this.name = 'ConflictError';
   }
 }
+
+export class TooManyRequestsError extends AppError {
+  constructor(message = 'Quá nhiều yêu cầu. Vui lòng thử lại sau.') {
+    super(429, message);
+    this.name = 'TooManyRequestsError';
+  }
+}

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { Role, UserStatus } from '@prisma/client';
+import { ResetTokenType, Role, UserStatus } from '@prisma/client';
 import { prisma } from '../db/client.js';
 import { TokenPayload, UserSummary } from '../types/auth.types.js';
 import {
@@ -7,10 +7,12 @@ import {
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  TooManyRequestsError,
   UnauthorizedError,
 } from '../utils/errors.js';
 import { comparePassword, hashPassword } from '../utils/hash.js';
 import { hashToken, signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
+import { sendResetOtpEmail } from '../utils/mailer.js';
 
 export interface RegisterDto {
   fullName: string;
@@ -288,7 +290,7 @@ export class AuthService {
     };
   }
 
-  static async forgotPassword(email: string): Promise<{ message: string; resetToken?: string }> {
+  static async forgotPassword(email: string): Promise<{ message: string }> {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -296,58 +298,177 @@ export class AuthService {
 
     if (!user) {
       // Để tránh dò tìm email, vẫn trả về thông báo chung
-      return { message: 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.' };
+      return { message: 'Nếu email tồn tại trong hệ thống, mã OTP đặt lại mật khẩu đã được gửi.' };
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const tokenHash = hashToken(resetToken);
-
-    // Lưu token có hạn 30 phút
-    await prisma.passwordResetToken.create({
-      data: {
-        tokenHash,
+    const now = new Date();
+    const cooldownThreshold = new Date(now.getTime() - 60 * 1000);
+    const recentToken = await prisma.passwordResetToken.findFirst({
+      where: {
         userId: user.id,
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+        type: ResetTokenType.OTP,
+        createdAt: { gt: cooldownThreshold },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    // Chỉ trả về resetToken khi có cờ EXPOSE_RESET_TOKEN=true trong môi trường development hoặc test
-    const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || !process.env.NODE_ENV;
-    const canExpose = isDevOrTest && process.env.EXPOSE_RESET_TOKEN === 'true';
+    if (recentToken) {
+      throw new TooManyRequestsError('Vui lòng đợi 60 giây trước khi yêu cầu mã OTP mới.');
+    }
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const tokenHash = hashToken(`otp:${user.id}:${otp}`);
+
+    // Vô hiệu hóa các OTP cũ chưa dùng và tạo OTP mới (hạn 5 phút)
+    await prisma.$transaction([
+      prisma.passwordResetToken.updateMany({
+        where: { userId: user.id, type: ResetTokenType.OTP, usedAt: null },
+        data: { usedAt: now },
+      }),
+      prisma.passwordResetToken.create({
+        data: {
+          tokenHash,
+          userId: user.id,
+          type: ResetTokenType.OTP,
+          expiresAt: new Date(now.getTime() + 5 * 60 * 1000),
+        },
+      }),
+    ]);
+
+    await sendResetOtpEmail(user.email, otp);
 
     return {
-      message: 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.',
-      ...(canExpose ? { resetToken } : {}),
+      message: 'Nếu email tồn tại trong hệ thống, mã OTP đặt lại mật khẩu đã được gửi.',
     };
   }
 
+  static async verifyResetOtp(email: string, otp: string): Promise<{ resetToken: string }> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (!user) {
+      throw new BadRequestError('Mã OTP không hợp lệ hoặc đã hết hạn.');
+    }
+
+    const now = new Date();
+    const record = await prisma.passwordResetToken.findFirst({
+      where: {
+        userId: user.id,
+        type: ResetTokenType.OTP,
+        usedAt: null,
+        expiresAt: { gt: now },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      throw new BadRequestError('Mã OTP không hợp lệ hoặc đã hết hạn.');
+    }
+
+    const inputHash = hashToken(`otp:${user.id}:${otp}`);
+    const inputBuffer = Buffer.from(inputHash, 'hex');
+    const storedBuffer = Buffer.from(record.tokenHash, 'hex');
+    const isMatch =
+      inputBuffer.length === storedBuffer.length && crypto.timingSafeEqual(inputBuffer, storedBuffer);
+
+    if (!isMatch) {
+      const updated = await prisma.passwordResetToken.update({
+        where: { id: record.id },
+        data: { attempts: { increment: 1 } },
+      });
+
+      if (updated.attempts >= 5) {
+        await prisma.passwordResetToken.updateMany({
+          where: { id: record.id, usedAt: null },
+          data: { usedAt: new Date() },
+        });
+        throw new BadRequestError('Bạn đã nhập sai OTP quá 5 lần. Mã đã bị hủy, vui lòng yêu cầu mã mới.');
+      }
+
+      throw new BadRequestError(`Mã OTP không chính xác. Bạn còn ${5 - updated.attempts} lần thử.`);
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = hashToken(`reset:${resetToken}`);
+
+    await prisma.$transaction(async (tx) => {
+      const claimed = await tx.passwordResetToken.updateMany({
+        where: {
+          id: record.id,
+          type: ResetTokenType.OTP,
+          usedAt: null,
+          expiresAt: { gt: now },
+        },
+        data: { usedAt: now },
+      });
+
+      if (claimed.count === 0) {
+        throw new BadRequestError('Mã OTP không hợp lệ hoặc đã hết hạn.');
+      }
+
+      await tx.passwordResetToken.create({
+        data: {
+          tokenHash: resetTokenHash,
+          userId: user.id,
+          type: ResetTokenType.RESET,
+          expiresAt: new Date(now.getTime() + 10 * 60 * 1000),
+        },
+      });
+    });
+
+    return { resetToken };
+  }
+
   static async resetPassword(token: string, newPassword: string): Promise<void> {
-    const tokenHash = hashToken(token);
+    if (!/^[a-f0-9]{64}$/i.test(token)) {
+      throw new BadRequestError('Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.');
+    }
+
+    const now = new Date();
+    const tokenHash = hashToken(`reset:${token}`);
 
     const record = await prisma.passwordResetToken.findUnique({
       where: { tokenHash },
     });
 
-    if (!record || record.usedAt !== null || record.expiresAt < new Date()) {
+    if (
+      !record ||
+      record.type !== ResetTokenType.RESET ||
+      record.usedAt !== null ||
+      record.expiresAt < now
+    ) {
       throw new BadRequestError('Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.');
     }
 
     const passwordHash = await hashPassword(newPassword);
 
-    await prisma.$transaction([
-      prisma.user.update({
+    await prisma.$transaction(async (tx) => {
+      const claimed = await tx.passwordResetToken.updateMany({
+        where: {
+          id: record.id,
+          type: ResetTokenType.RESET,
+          usedAt: null,
+          expiresAt: { gt: now },
+        },
+        data: { usedAt: now },
+      });
+
+      if (claimed.count === 0) {
+        throw new BadRequestError('Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.');
+      }
+
+      await tx.user.update({
         where: { id: record.userId },
         data: { passwordHash },
-      }),
-      prisma.passwordResetToken.update({
-        where: { id: record.id },
-        data: { usedAt: new Date() },
-      }),
+      });
+
       // Thu hồi tất cả refresh tokens để buộc đăng nhập lại
-      prisma.refreshToken.updateMany({
+      await tx.refreshToken.updateMany({
         where: { userId: record.userId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      }),
-    ]);
+        data: { revokedAt: now },
+      });
+    });
   }
 }
