@@ -42,7 +42,7 @@ export class UserController {
         throw new BadRequestError('Trạng thái người dùng không hợp lệ.');
       }
 
-      const updated = await UserService.updateUserStatus(id, status);
+      const updated = await UserService.updateUserStatus(id, status, req.user!.userId);
       res.status(200).json(updated);
     } catch (error) {
       next(error);
@@ -57,7 +57,7 @@ export class UserController {
         throw new BadRequestError('Vai trò người dùng không hợp lệ.');
       }
 
-      const updated = await UserService.updateUserRole(id, role);
+      const updated = await UserService.updateUserRole(id, role, req.user!.userId);
       res.status(200).json(updated);
     } catch (error) {
       next(error);

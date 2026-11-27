@@ -104,6 +104,15 @@ export class AuthController {
     }
   }
 
+  static async verifyResetOtp(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await AuthService.verifyResetOtp(req.body.email, req.body.otp);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       await AuthService.resetPassword(req.body.token, req.body.newPassword);

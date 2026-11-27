@@ -7,6 +7,7 @@ import {
   loginSchema,
   registerSchema,
   resetPasswordSchema,
+  verifyResetOtpSchema,
 } from '../validations/auth.validation.js';
 
 export const authRouter = Router();
@@ -17,4 +18,5 @@ authRouter.post('/auth/refresh', AuthController.refresh);
 authRouter.post('/auth/logout', AuthController.logout);
 authRouter.get('/auth/me', authenticate, AuthController.getMe);
 authRouter.post('/auth/forgot-password', validateBody(forgotPasswordSchema), AuthController.forgotPassword);
+authRouter.post('/auth/verify-reset-otp', validateBody(verifyResetOtpSchema), AuthController.verifyResetOtp);
 authRouter.post('/auth/reset-password', validateBody(resetPasswordSchema), AuthController.resetPassword);

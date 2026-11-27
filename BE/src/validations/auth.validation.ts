@@ -30,7 +30,12 @@ export const forgotPasswordSchema = z.object({
   email: emailField,
 });
 
+export const verifyResetOtpSchema = z.object({
+  email: emailField,
+  otp: z.string().regex(/^\d{6}$/, 'Mã OTP phải gồm 6 chữ số.'),
+});
+
 export const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'Mã xác nhận không được để trống.'),
+  token: z.string().regex(/^[a-f0-9]{64}$/i, 'Mã xác nhận không hợp lệ.'),
   newPassword: passwordField,
 });
